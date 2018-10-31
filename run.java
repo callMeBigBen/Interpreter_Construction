@@ -17,7 +17,8 @@ public class run {
 	//定义标识符表
 	static ArrayList<String> identifier = new ArrayList<String>();
 	//定义token映射表
-	static HashMap<String,Integer> tokens = new HashMap<String,Integer>();
+	//static HashMap<String,Integer> tokens = new HashMap<String,Integer>();
+	static ArrayList<Token> tokens = new ArrayList<Token>();
 	//添加值
 	public static void fill_list(){
 		reserved_word.add("boolean");  
@@ -58,6 +59,8 @@ public class run {
 		operator.add("*");
 		operator.add("/");
 		operator.add("%");
+		operator.add("\"");
+		operator.add("\'");
 	}
 	
 	//查找是否为保留字,并且返回对应的类别码
@@ -128,7 +131,7 @@ public class run {
 	
 	/*
 	 * 词法分类函数：分出单个token，得到对应的类型并且保存
-	 * 类型：1.保留字; 2.标识符; 3.数字;4.符号
+	 * 类型：1.保留字; 2.标识符; 3.数字;4.符号,5.字符串,6.字符
 	 */
 	public static int scanner(String sourceCode,int currPosition){
 		int tag = -1;
@@ -155,17 +158,21 @@ public class run {
 				currPosition++;
 			}
 			//token.append('\0');
-			String tmpstr=token.toString();
+			String tmpstr=token.toString();		
 			movement+=tmpstr.length();
 			
 			//查保留字表，若是，修改类型标签为1,否则为2
 			if(isReserved(tmpstr)){
 				tag = 1;
-				tokens.put(tmpstr, tag);
+				Token tokenObj = new Token();
+				tokenObj.put(tmpstr,tag);
+				tokens.add(tokenObj);
 			}
 			else{
 				tag = 2;
-				tokens.put(tmpstr, tag);
+				Token tokenObj = new Token();
+				tokenObj.put(tmpstr,tag);
+				tokens.add(tokenObj);
 			}
 		}
 		//数字开头
@@ -175,68 +182,143 @@ public class run {
 				token.append(sourceCode.charAt(currPosition));
 			}
 			//token.append('\0');
-			String tmpstr = token.toString();
-			movement+=tmpstr.length();
 			tag = 3;
-			tokens.put(tmpstr, tag);
+			String tmpstr = token.toString();
+			Token tokenObj = new Token();
+			tokenObj.put(tmpstr,tag);
+			movement+=tmpstr.length();			
+			tokens.add(tokenObj);
 		}
 		//单符号开头
 		else if(ch=='+'||ch=='-'||ch=='*'||ch=='/'
 				||ch=='('||ch==')'||ch=='['||ch==']'||ch=='{'
-				||ch=='}'||ch=='%'||ch=='='||ch==','||ch==';'){
+				||ch=='}'||ch=='%'||ch==','||ch==';'){
 			tag = 4;
 			token.append(ch);		
 			String tmpstr = token.toString();
+			Token tokenObj = new Token();
+			tokenObj.put(tmpstr,tag);
 			movement++;
-			tokens.put(tmpstr,tag);
+			tokens.add(tokenObj);
+			
 		}
 		//可能的复合符号开头
-		else if(ch=='!'||ch=='>'||ch=='<'||ch=='&'||ch=='|'){
+		else if(ch=='!'||ch=='>'||ch=='<'||ch=='&'||ch=='|'||ch=='='){
 			tag=4;
 			if(ch=='!'&&sourceCode.charAt(currPosition+1)=='='){
 				token.append("!=");
 				String tmpstr = token.toString();
+				Token tokenObj = new Token();
+				tokenObj.put(tmpstr,tag);
 				movement +=2;
-				tokens.put(tmpstr, tag);
+				tokens.add(tokenObj);
 			}
 			else if(ch=='!'&&sourceCode.charAt(currPosition+1)!='='){
 				token.append("!");
 				String tmpstr = token.toString();
+				Token tokenObj = new Token();
+				tokenObj.put(tmpstr,tag);
 				movement++;
-				tokens.put(tmpstr, tag);
+				tokens.add(tokenObj);
+			}
+			else if(ch=='='&&sourceCode.charAt(currPosition+1)!='='){
+				token.append("=");
+				String tmpstr = token.toString();
+				Token tokenObj = new Token();
+				tokenObj.put(tmpstr,tag);
+				movement++;
+				tokens.add(tokenObj);
+			}
+			else if(ch=='='&&sourceCode.charAt(currPosition+1)=='='){
+				token.append("==");
+				String tmpstr = token.toString();
+				Token tokenObj = new Token();
+				tokenObj.put(tmpstr,tag);
+				movement +=2;
+				tokens.add(tokenObj);
 			}
 			else if(ch=='>'&&sourceCode.charAt(currPosition+1)=='='){
 				token.append(">=");
 				String tmpstr = token.toString();
+				Token tokenObj = new Token();
+				tokenObj.put(tmpstr,tag);
 				movement+=2;
-				tokens.put(tmpstr, tag);
+				tokens.add(tokenObj);
 			}else if(ch=='>'&&sourceCode.charAt(currPosition+1)!='='){
 				token.append(">");
 				String tmpstr = token.toString();
+				Token tokenObj = new Token();
+				tokenObj.put(tmpstr,tag);
 				movement++;
-				tokens.put(tmpstr, tag);
+				tokens.add(tokenObj);
 			}else if(ch=='<'&&sourceCode.charAt(currPosition+1)=='='){
 				token.append("<=");
 				String tmpstr = token.toString();
+				Token tokenObj = new Token();
+				tokenObj.put(tmpstr,tag);
 				movement+=2;
-				tokens.put(tmpstr, tag);
+				tokens.add(tokenObj);
 			}else if(ch=='<'&&sourceCode.charAt(currPosition+1)!='='){
 				token.append("<");
 				String tmpstr = token.toString();
+				Token tokenObj = new Token();
+				tokenObj.put(tmpstr,tag);
 				movement+=2;
-				tokens.put(tmpstr, tag);
+				tokens.add(tokenObj);
 			}else if(ch=='&'&&sourceCode.charAt(currPosition+1)=='&'){
 				token.append("&&");
 				String tmpstr = token.toString();
+				Token tokenObj = new Token();
+				tokenObj.put(tmpstr,tag);
 				movement+=2;
-				tokens.put(tmpstr, tag);
+				tokens.add(tokenObj);
 			}else if(ch=='|'&&sourceCode.charAt(currPosition+1)=='|'){
 				token.append("||");
 				String tmpstr = token.toString();
+				Token tokenObj = new Token();
+				tokenObj.put(tmpstr,tag);
 				movement+=2;
-				tokens.put(tmpstr, tag);
+				tokens.add(tokenObj);
 			}
 		}
+		//双引号
+		else if(ch=='\"'){
+			tag = 5;
+			token.append(sourceCode.charAt(currPosition));
+			currPosition++;
+		    while(sourceCode.charAt(currPosition)!='\"'){
+		    	token.append(sourceCode.charAt(currPosition));
+		    	currPosition++;
+		    }
+		    token.append(sourceCode.charAt(currPosition));
+		    String tmpstr = token.toString();
+		    Token tokenObj = new Token();
+			tokenObj.put(tmpstr,tag);
+		    movement+=tmpstr.length();
+		    tokens.add(tokenObj);			
+		}
+		//单引号
+				else if(ch=='\''){
+					tag = 6;
+					token.append(sourceCode.charAt(currPosition));
+					currPosition++;
+					int charLength = 1;
+				    while(sourceCode.charAt(currPosition)!='\''){
+				    	if(charLength>1){
+				    		System.out.println("字符超长，语法错误，位置："+currPosition+":"+sourceCode.charAt(currPosition));
+				    		System.exit(0);
+				    	}
+				    	token.append(sourceCode.charAt(currPosition));
+				    	charLength++;
+				    	currPosition++;
+				    }
+				    token.append(sourceCode.charAt(currPosition));
+				    String tmpstr = token.toString();
+				    Token tokenObj = new Token();
+					tokenObj.put(tmpstr,tag);
+				    movement+=tmpstr.length();
+				    tokens.add(tokenObj);			
+				}
 		else if(ch=='$'){
 			tag=0;//结束符
 		}
@@ -286,8 +368,8 @@ public class run {
 			i+=scanner(newSrc,i);
 		}
 		
-		for(String key:tokens.keySet()){
-			System.out.println(key+",Type:"+tokens.get(key));
+		for(Token tk:tokens){
+			System.out.println(tk.content+",Type:"+tk.type);
 		}
 		
 	}
