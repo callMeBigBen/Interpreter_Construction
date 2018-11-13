@@ -27,47 +27,52 @@ public class run {
 	static int lineNum = 0;
 	//添加值
 	public static void fill_list(){
-		reserved_word.add("boolean");  
-		reserved_word.add("char");	   
-		reserved_word.add("int");
-		reserved_word.add("double");
-		reserved_word.add("string");
-		reserved_word.add("true");
-		reserved_word.add("false");
-		reserved_word.add("if");
-		reserved_word.add("else");
-		reserved_word.add("while");
-		reserved_word.add("for");
-		reserved_word.add("break");
-		reserved_word.add("continue");
-		reserved_word.add("void");
-		reserved_word.add("return");
+		//character or number:0
+		//
+		reserved_word.add("boolean"); //1 
+		reserved_word.add("char");	   //2
+		reserved_word.add("int");//3
+		reserved_word.add("double");//4
+		reserved_word.add("string");//5
+		reserved_word.add("true");//6
+		reserved_word.add("false");//7
+		reserved_word.add("if");//8
+		reserved_word.add("else");//9
+		reserved_word.add("while");//10
+		reserved_word.add("for");//11
+		reserved_word.add("break");//12
+		reserved_word.add("continue");//13
+		reserved_word.add("void");//14
+		reserved_word.add("return");//15
 		
-		operator.add("(");
-		operator.add(")");
-		operator.add("{");
-		operator.add("}");
-		operator.add("[");
-		operator.add("]");
-		operator.add(";");
-		operator.add(",");
-		operator.add("=");
-		operator.add(">");
-		operator.add("<");
-		operator.add("==");
-		operator.add("<=");
-		operator.add(">=");
-		operator.add("!=");
-		operator.add("&&");
-		operator.add("||");
-		operator.add("!");
-		operator.add("+");
-		operator.add("*");
-		operator.add("/");
-		operator.add("%");
-		operator.add("\"");
-		operator.add("\'");
+		operator.add("(");//16
+		operator.add(")");//17
+		operator.add("{");//18
+		operator.add("}");//19
+		operator.add("[");//20
+		operator.add("]");//21
+		operator.add(";");//22
+		operator.add(",");//23
+		operator.add("=");//24
+		operator.add(">");//25
+		operator.add("<");//26
+		operator.add("==");//27
+		operator.add("<=");//28
+		operator.add(">=");//29
+		operator.add("!=");//30
+		operator.add("&&");//31
+		operator.add("||");//32
+		operator.add("!");//33
+		operator.add("+");//34
+		operator.add("*");//35
+		operator.add("/");//36
+		operator.add("%");//37
+		operator.add("\"");//38
+		operator.add("\'");//39
+		//minus"-"40
+		//negative "-"41
 	}
+	
 	
 	//查找是否为保留字,并且返回对应的类别码
 	public static boolean isReserved(String str){
@@ -147,7 +152,7 @@ public class run {
 	 * @return
 	 */
 	public static int scanner(String sourceCode,int currPosition){
-		int tag = -1;
+		//int tag = -1;
 		int movement = 0;//用于返回的移动量，即读取token之后要改变读取位置，功能类似C的指针
 		int len = sourceCode.length();
 		StringBuffer token = new StringBuffer();
@@ -175,19 +180,12 @@ public class run {
 			String tmpstr=token.toString();		
 			movement+=tmpstr.length();
 			
-			//查保留字表，若是，修改类型标签为1,否则为2
-			if(isReserved(tmpstr)){
-				tag = 1;
-				Token tokenObj = new Token();
-				tokenObj.put(tmpstr,tag,lineNum);
-				tokens.add(tokenObj);
-			}
-			else{
-				tag = 2;
-				Token tokenObj = new Token();
-				tokenObj.put(tmpstr,tag,lineNum);
-				tokens.add(tokenObj);
-			}
+			//查保留字表,修改字符码
+			Token tokenObj = new Token();
+			tokenObj.put(tmpstr,lineNum);
+			tokenObj.confirmCode();
+			tokens.add(tokenObj);
+			
 		}
 		//数字开头
 		else if(isNumber(ch)&&currPosition<len-1){
@@ -214,49 +212,56 @@ public class run {
 				System.exit(0);
 			}
 			//token.append('\0');
-			tag = 3;
+
 			String tmpstr = token.toString();
-			Token tokenObj = new Token();
-			tokenObj.put(tmpstr,tag,lineNum);
 			movement+=tmpstr.length();
+			
+			Token tokenObj = new Token();
+			tokenObj.put(tmpstr,lineNum);
+			tokenObj.confirmCode();
 			tokens.add(tokenObj);
 		}
 		//单符号开头
 		else if(ch=='+'||ch=='*'||ch=='/'
 				||ch=='('||ch==')'||ch=='['||ch==']'||ch=='{'
 				||ch=='}'||ch=='%'||ch==','||ch==';'){
-			tag = 4;
 			token.append(ch);		
 			String tmpstr = token.toString();
-			Token tokenObj = new Token();
-			tokenObj.put(tmpstr,tag,lineNum);
 			movement++;
+			
+			Token tokenObj = new Token();
+			tokenObj.put(tmpstr,lineNum);
+			tokenObj.confirmCode();
 			tokens.add(tokenObj);
 			
 		}
 		//可能的复合符号开头
 		else if((ch=='!'||ch=='>'||ch=='<'||ch=='&'||ch=='|'||ch=='='||ch=='-')
 				&&currPosition<len-1){
-			tag=4;
 			if(ch=='!'&&sourceCode.charAt(currPosition+1)=='='){
 				token.append("!=");
 				String tmpstr = token.toString();
-				Token tokenObj = new Token();
-				tokenObj.put(tmpstr,tag,lineNum);
 				movement +=2;
+				
+				Token tokenObj = new Token();
+				tokenObj.put(tmpstr,lineNum);
+				tokenObj.confirmCode();
 				tokens.add(tokenObj);
 			}
 			else if(ch=='!'&&sourceCode.charAt(currPosition+1)!='='){
 				token.append("!");
 				String tmpstr = token.toString();
-				Token tokenObj = new Token();
-				tokenObj.put(tmpstr,tag,lineNum);
 				movement++;
+				
+				Token tokenObj = new Token();
+				tokenObj.put(tmpstr,lineNum);
+				tokenObj.confirmCode();
 				tokens.add(tokenObj);
 			}
-			//识别“-”为负号，但是先要防止tokens为空出错
+			//识别“-”为负号，但是先要防止tokens为空出错(因为要检测tokens中前一个元素，可能没有元素）
 			else if(ch=='-'&&tokens.isEmpty()){
-				token.append(sourceCode.charAt(currPosition));
+				System.out.println("Line:"+lineNum+"At"+currPosition+"  Syntax Error: '-' can not be the head of the line!");
+				/*token.append(sourceCode.charAt(currPosition));
 				currPosition++;
 				//可能防止负变量
 				//if(currPosition<(len-1)&&!isNumber(sourceCode.charAt(currPosition))){
@@ -279,115 +284,131 @@ public class run {
 					}
 					currPosition++;
 				}
-				tag = 3;
 				String tmpstr = token.toString();
-				Token tokenObj = new Token();
-				tokenObj.put(tmpstr,tag,lineNum);
 				movement+=tmpstr.length();
-				tokens.add(tokenObj);
+				
+				Token tokenObj = new Token();
+				tokenObj.put(tmpstr,lineNum);
+				tokenObj.confirmCode();
+				tokens.add(tokenObj);*/
 			}
-			//识别“-”为符号
-			else if(ch=='-'&&(tokens.get(tokens.size()-1).type==3
-					||tokens.get(tokens.size()-1).type==2)){
+			//识别“-”为减号
+			else if(ch=='-'&&(tokens.get(tokens.size()-1).code==0)){
 				token.append(ch);		
 				String tmpstr = token.toString();
-				Token tokenObj = new Token();
-				tokenObj.put(tmpstr,tag,lineNum);
 				movement++;
+				
+				Token tokenObj = new Token();
+				tokenObj.put(tmpstr,lineNum);
+				tokenObj.confirmCode();
 				tokens.add(tokenObj);
 			}
-			//识别“-”为负号
-			else if(ch=='-'&&(tokens.get(tokens.size()-1).type!=3
-					||tokens.get(tokens.size()-1).type!=2)){
+			//识别“-”为负号，前面是左括号或者比较、赋值符号
+			else if(ch=='-'&&(
+					tokens.get(tokens.size()-1).code==16
+					||tokens.get(tokens.size()-1).code==24
+					||tokens.get(tokens.size()-1).code==25
+					||tokens.get(tokens.size()-1).code==26
+					||tokens.get(tokens.size()-1).code==27
+					||tokens.get(tokens.size()-1).code==28
+					||tokens.get(tokens.size()-1).code==29
+					||tokens.get(tokens.size()-1).code==30)){
 				token.append(sourceCode.charAt(currPosition));
 				currPosition++;
-				boolean doted =false;
-				while((currPosition<(len-1)&&isNumber(sourceCode.charAt(currPosition)))
-						||sourceCode.charAt(currPosition)=='.'){
-					if(isNumber(sourceCode.charAt(currPosition))){
-						token.append(sourceCode.charAt(currPosition));
-					}
-					else if(!doted&&sourceCode.charAt(currPosition)=='.'){
-						token.append(sourceCode.charAt(currPosition));
-						doted=true;
-					}
-					else if(doted&&sourceCode.charAt(currPosition)=='.'){
-						System.out.println("Line:"+lineNum+" Error, more than one dot. At "+(currPosition+1));
-						System.exit(0);
-					}
-					currPosition++;
+				//识别为负号之后，后面如果不是标识符或数字或左括号，报错
+				if((currPosition<len-1)
+						&&!isLetter(sourceCode.charAt(currPosition))
+						&&!isNumber(sourceCode.charAt(currPosition))){
+					System.out.println("Line:"+lineNum+" At "+currPosition+" Syntax Error:Unknown '-'");
+					System.exit(0);
 				}
-				//token.append('\0');
-				tag = 3;
+				
 				String tmpstr = token.toString();
-				Token tokenObj = new Token();
-				tokenObj.put(tmpstr,tag,lineNum);
 				movement+=tmpstr.length();
+
+				Token tokenObj = new Token();
+				tokenObj.put(tmpstr+"_",lineNum);
+				tokenObj.confirmCode();
 				tokens.add(tokenObj);
 			}
 			else if(ch=='='&&sourceCode.charAt(currPosition+1)!='='){
 				token.append("=");
 				String tmpstr = token.toString();
-				Token tokenObj = new Token();
-				tokenObj.put(tmpstr,tag,lineNum);
 				movement++;
+				
+				Token tokenObj = new Token();
+				tokenObj.put(tmpstr,lineNum);
+				tokenObj.confirmCode();
 				tokens.add(tokenObj);
 			}
 			else if(ch=='='&&sourceCode.charAt(currPosition+1)=='='){
 				token.append("==");
 				String tmpstr = token.toString();
-				Token tokenObj = new Token();
-				tokenObj.put(tmpstr,tag,lineNum);
 				movement +=2;
+				
+				Token tokenObj = new Token();
+				tokenObj.put(tmpstr,lineNum);
+				tokenObj.confirmCode();
 				tokens.add(tokenObj);
 			}
 			else if(ch=='>'&&sourceCode.charAt(currPosition+1)=='='){
 				token.append(">=");
 				String tmpstr = token.toString();
-				Token tokenObj = new Token();
-				tokenObj.put(tmpstr,tag,lineNum);
 				movement+=2;
+				
+				Token tokenObj = new Token();
+				tokenObj.put(tmpstr,lineNum);
+				tokenObj.confirmCode();
 				tokens.add(tokenObj);
 			}else if(ch=='>'&&sourceCode.charAt(currPosition+1)!='='){
 				token.append(">");
 				String tmpstr = token.toString();
-				Token tokenObj = new Token();
-				tokenObj.put(tmpstr,tag,lineNum);
 				movement++;
+				
+				Token tokenObj = new Token();
+				tokenObj.put(tmpstr,lineNum);
+				tokenObj.confirmCode();
 				tokens.add(tokenObj);
 			}else if(ch=='<'&&sourceCode.charAt(currPosition+1)=='='){
 				token.append("<=");
 				String tmpstr = token.toString();
-				Token tokenObj = new Token();
-				tokenObj.put(tmpstr,tag,lineNum);
 				movement+=2;
+				
+				Token tokenObj = new Token();
+				tokenObj.put(tmpstr,lineNum);
+				tokenObj.confirmCode();
 				tokens.add(tokenObj);
 			}else if(ch=='<'&&sourceCode.charAt(currPosition+1)!='='){
 				token.append("<");
 				String tmpstr = token.toString();
-				Token tokenObj = new Token();
-				tokenObj.put(tmpstr,tag,lineNum);
 				movement+=2;
+				
+				Token tokenObj = new Token();
+				tokenObj.put(tmpstr,lineNum);
+				tokenObj.confirmCode();
 				tokens.add(tokenObj);
 			}else if(ch=='&'&&sourceCode.charAt(currPosition+1)=='&'){
 				token.append("&&");
 				String tmpstr = token.toString();
-				Token tokenObj = new Token();
-				tokenObj.put(tmpstr,tag,lineNum);
 				movement+=2;
+				
+				Token tokenObj = new Token();
+				tokenObj.put(tmpstr,lineNum);
+				tokenObj.confirmCode();
 				tokens.add(tokenObj);
 			}else if(ch=='|'&&sourceCode.charAt(currPosition+1)=='|'){
 				token.append("||");
 				String tmpstr = token.toString();
-				Token tokenObj = new Token();
-				tokenObj.put(tmpstr,tag,lineNum);
 				movement+=tmpstr.length();
+				
+				Token tokenObj = new Token();
+				tokenObj.put(tmpstr,lineNum);
+				tokenObj.confirmCode();
 				tokens.add(tokenObj);
 			}
 		}
 		//双引号
 		else if(ch=='\"'&&currPosition<len-1){
-			tag = 5;
 			token.append(sourceCode.charAt(currPosition));
 			currPosition++;
 		    while(sourceCode.charAt(currPosition)!='\"'){
@@ -400,14 +421,15 @@ public class run {
 		    }
 		    token.append(sourceCode.charAt(currPosition));
 		    String tmpstr = token.toString();
-		    Token tokenObj = new Token();
-			tokenObj.put(tmpstr,tag,lineNum);
 		    movement+=tmpstr.length();
-		    tokens.add(tokenObj);			
+		    
+		    Token tokenObj = new Token();
+			tokenObj.put(tmpstr,lineNum);
+			tokenObj.confirmCode();
+			tokens.add(tokenObj);		
 		}
 		//单引号
 				else if(ch=='\''&&currPosition<len-1){
-					tag = 6;
 					token.append(sourceCode.charAt(currPosition));
 					currPosition++;
 					int charLength = 1;
@@ -426,14 +448,13 @@ public class run {
 				    }
 				    token.append(sourceCode.charAt(currPosition));
 				    String tmpstr = token.toString();
-				    Token tokenObj = new Token();
-					tokenObj.put(tmpstr,tag,lineNum);
 				    movement+=tmpstr.length();
-				    tokens.add(tokenObj);			
+				    
+				    Token tokenObj = new Token();
+					tokenObj.put(tmpstr,lineNum);
+					tokenObj.confirmCode();
+					tokens.add(tokenObj);			
 				}
-		else if(ch=='$'){
-			tag=0;//结束符
-		}
 		else{
 			//不能识别的未知符号，如中文引号
 			System.out.println("Line:"+lineNum+" Error, unknown character. At "+(currPosition+1));
@@ -499,7 +520,7 @@ public class run {
 			reader.close();
 			
 			for(Token tk:tokens){
-				System.out.println("line:"+tk.line+",  "+tk.content+",  Type:"+tk.type);
+				System.out.println("line:"+tk.line+",  "+tk.content+",  Code:"+tk.code);
 			}
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
