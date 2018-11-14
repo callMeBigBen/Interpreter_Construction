@@ -13,14 +13,15 @@ public class Calculator{
 	
 	
 	//use regex to determine error and pass a string
-	public String read(String str) throws Exception{
+	public String read(String str) throws IOException{
+		//BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 		//the pattern of variable is:(\\D(\\d|\\D)*),v or number is:(\\d+|(\\D(\\d|\\D)*))		
-		//String pattern = "((\\d+(\\D\\d+)*)|(\\(\\d+\\D\\d+\\)*))((\\D\\d+)|(\\D\\(\\d+\\D\\d+\\)))*";
+		//String pattern = "(\\D)=(((\\d+(\\D\\d+)*)|(\\(\\d+\\D\\d+\\)*))((\\D\\d+)|(\\D\\(\\d+\\D\\d+\\)))*)";
 		//replace all "\\d+" by "(\\d+|(\\D(\\d|\\D)*))"
-		String pattern ="^(\\(*\\d+(.\\d+)*\\)*(\\+|-|/|\\*))+\\d+(.\\d+)*\\)*$";
-		//String pattern = "(((\\d+|(\\D(\\d|\\D)*))(\\D(\\d+|(\\D(\\d|\\D)*)))*)|(\\((\\d+|(\\D(\\d|\\D)*))\\D(\\d+|(\\D(\\d|\\D)*))\\)*))((\\D(\\d+|(\\D(\\d|\\D)*)))|(\\D\\((\\d+|(\\D(\\d|\\D)*))\\D(\\d+|(\\D(\\d|\\D)*))\\)))*;";
-		//String prtfVar = "print\\(((((\\d+|(\\D(\\d|\\D)*))(\\D(\\d+|(\\D(\\d|\\D)*)))*)|(\\((\\d+|(\\D(\\d|\\D)*))\\D(\\d+|(\\D(\\d|\\D)*))\\)*))((\\D(\\d+|(\\D(\\d|\\D)*)))|(\\D\\((\\d+|(\\D(\\d|\\D)*))\\D(\\d+|(\\D(\\d|\\D)*))\\)))*)\\);";
-		//String exitVar = "exit;";
+		String pattern = "([a-zA-Z](\\d|[a-zA-Z])*)=((((\\d+|(\\D(\\d|\\D)*))(\\D(\\d+|(\\D(\\d|\\D)*)))*)|(\\((\\d+|(\\D(\\d|\\D)*))\\D(\\d+|(\\D(\\d|\\D)*))\\)*))((\\D(\\d+|(\\D(\\d|\\D)*)))|(\\D\\((\\d+|(\\D(\\d|\\D)*))\\D(\\d+|(\\D(\\d|\\D)*))\\)))*);";
+		String prtfVar = "print\\(((((\\d+|(\\D(\\d|\\D)*))(\\D(\\d+|(\\D(\\d|\\D)*)))*)|(\\((\\d+|(\\D(\\d|\\D)*))\\D(\\d+|(\\D(\\d|\\D)*))\\)*))((\\D(\\d+|(\\D(\\d|\\D)*)))|(\\D\\((\\d+|(\\D(\\d|\\D)*))\\D(\\d+|(\\D(\\d|\\D)*))\\)))*)\\);";
+		String exitVar = "exit;";
+//		String str = br.readLine();
 		if(Pattern.matches(pattern,str)){
 			System.out.println("The string is:"+str);
 			Pattern r = Pattern.compile(pattern);
@@ -33,17 +34,21 @@ public class Calculator{
 			key = m.group(1);
 			return m.group(3);
 		}
-//		else if(Pattern.matches(prtfVar, str)){
-//			Pattern r = Pattern.compile(prtfVar);
-//			Matcher m = r.matcher(str);
-//			//System.out.println("The outcome of find()3:"+m.find());
-//			m.find();
-//			//System.out.println("Group1:"+m.group(1));
-//			return "    "+m.group(1);
-//		}
+		else if(Pattern.matches(prtfVar, str)){
+			Pattern r = Pattern.compile(prtfVar);
+			Matcher m = r.matcher(str);
+			//System.out.println("The outcome of find()3:"+m.find());
+			m.find();
+			//System.out.println("Group1:"+m.group(1));
+			
+			return "    "+m.group(1);
+		}
+		else if(Pattern.matches(exitVar, str)){
+			return "exit";
+		}
 		else {
-			throw new Exception("Error: Invalid input!(Check if you are using English or if you loss the \";\")");
-
+			System.out.println("Error: Invalid input!(Check if you are using English or if you loss the \";\")");
+			return "inputError";
 		}
 		
 	}
@@ -54,12 +59,28 @@ public class Calculator{
 	public String insertBlanks(String s){
 		String result = "";
 		for(int i=0;i<s.length();i++){
-			if(s.charAt(i)=='('
-					   ||s.charAt(i)==')'
-					   ||s.charAt(i)=='+'
-					   ||s.charAt(i)=='-'
-					   ||s.charAt(i)=='*'
-					   ||s.charAt(i)=='/'){
+			if(s.charAt(i)=='('){
+				result +=" "+s.charAt(i)+" ";
+			}
+			else if(s.charAt(i)==')'){
+				result +=" "+s.charAt(i)+" ";
+			}
+			else if(s.charAt(i)=='+'){
+				result +=" "+s.charAt(i)+" ";
+			}
+			else if(i==0&&s.charAt(i)=='-'){//�׸���
+				result +=" "+s.charAt(i);
+			}
+			else if(s.charAt(i)=='-'&&s.charAt(i-1)=='('){//����
+				result +=" "+s.charAt(i);
+			}
+			else if(s.charAt(i)=='*'){
+				result +=" "+s.charAt(i)+" ";
+			}
+			else if(s.charAt(i)=='/'){
+				result +=" "+s.charAt(i)+" ";
+			}
+			else if(s.charAt(i)=='-'){
 				result +=" "+s.charAt(i)+" ";
 			}
 			else
@@ -70,7 +91,7 @@ public class Calculator{
 	
 	
 	//������
-    public double calculate(String exprs) throws Exception{
+    public double calculate(String exprs){
     	Stack<Double> operands = new Stack<>();
     	Stack<Character> operators = new Stack<>();
     	String variableOrNumber = "[a-zA-Z](\\d|[a-zA-Z])*";
@@ -91,12 +112,13 @@ public class Calculator{
         		}
     			else{
     				idx = idx+1+key.length();
-    				throw new Exception("Invalid input: \""+token+"\""+" at position: "+idx+", error output:");//׷��λ�ñ���
+    				System.out.print("Invalid input: \""+token+"\""+" at position: "+idx+", error output:");//׷��λ�ñ���
+    				return 0;
     			}
     		}
     		
     		//����ǼӼ��Ļ�����Ϊ�Ӽ������ȼ���ͣ���������ֻҪ�����Ӽ��ţ����۲�����ջ�е���ʲô�������Ҫ����
-    		else if(token.charAt(0)=='+'||token.charAt(0)=='-'){
+    		else if(token.length()==1&&(token.charAt(0)=='+'||token.charAt(0)=='-')){
     			System.out.println(token);
     			 while (!operators.isEmpty()
     				     &&(operators.peek() == '-' 
@@ -107,7 +129,7 @@ public class Calculator{
                  }
     			 operators.push(token.charAt(0));
     		}  		
-    		else if (token.charAt(0) == '*' || token.charAt(0) == '/') {
+    		else if (token.length()==1&&(token.charAt(0) == '*' || token.charAt(0) == '/')) {
     			System.out.println(token);
                 while (!operators.isEmpty()
                 		&&(operators.peek() == '/' || operators.peek() == '*')) {
@@ -147,7 +169,8 @@ public class Calculator{
         double value = operands.peek().doubleValue();
         operands.pop();
         if(!operands.isEmpty()){
-        	throw new Exception("ֵ格式有误!左括号前面不能有变量或数值\r\n" );
+        	System.out.println("��ʽ����!������ǰ�治���б�������ֵ");
+        	return 0;
         }
         //����ӳ���
         if(map.containsKey(key)){
