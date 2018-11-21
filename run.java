@@ -261,36 +261,6 @@ public class run {
 			//识别“-”为负号，但是先要防止tokens为空出错(因为要检测tokens中前一个元素，可能没有元素）
 			else if(ch=='-'&&tokens.isEmpty()){
 				System.out.println("Line:"+lineNum+"At"+currPosition+"  Syntax Error: '-' can not be the head of the line!");
-				/*token.append(sourceCode.charAt(currPosition));
-				currPosition++;
-				//可能防止负变量
-				//if(currPosition<(len-1)&&!isNumber(sourceCode.charAt(currPosition))){
-				//	System.out.println("Line:"+lineNum+"Error,as a nagative sign,'-'can only followed by a number!");
-				//	System.exit(0);
-				//}
-				boolean doted =false;
-				while((currPosition<(len-1)&&isNumber(sourceCode.charAt(currPosition)))
-						||sourceCode.charAt(currPosition)=='.'){
-					if(isNumber(sourceCode.charAt(currPosition))){
-						token.append(sourceCode.charAt(currPosition));
-					}
-					else if(!doted&&sourceCode.charAt(currPosition)=='.'){
-						token.append(sourceCode.charAt(currPosition));
-						doted=true;
-					}
-					else if(doted&&sourceCode.charAt(currPosition)=='.'){
-						System.out.println("Line:"+lineNum+" Error, more than one dot. At "+(currPosition+1));
-						System.exit(0);
-					}
-					currPosition++;
-				}
-				String tmpstr = token.toString();
-				movement+=tmpstr.length();
-				
-				Token tokenObj = new Token();
-				tokenObj.put(tmpstr,lineNum);
-				tokenObj.confirmCode();
-				tokens.add(tokenObj);*/
 			}
 			//识别“-”为减号
 			else if(ch=='-'&&(tokens.get(tokens.size()-1).code==0)){
@@ -330,6 +300,11 @@ public class run {
 				tokenObj.put(tmpstr+"_",lineNum);
 				tokenObj.confirmCode();
 				tokens.add(tokenObj);
+			}
+			//识别未知负号
+			else if(ch=='-'){
+				System.out.println("Line:"+lineNum+" At "+currPosition+" unknown '-'");
+				System.exit(0);
 			}
 			else if(ch=='='&&sourceCode.charAt(currPosition+1)!='='){
 				token.append("=");
@@ -436,7 +411,7 @@ public class run {
 				    while(sourceCode.charAt(currPosition)!='\''){
 				    	if(charLength>1){
 				    		System.out.println("Line:"+lineNum+" 字符超长，语法错误，位置："+currPosition+":"+sourceCode.charAt(currPosition));
-				    		System.exit(0);
+				    		//System.exit(0);
 				    	}
 				    	token.append(sourceCode.charAt(currPosition));
 				    	charLength++;
