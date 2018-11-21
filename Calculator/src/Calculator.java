@@ -47,7 +47,7 @@ public class Calculator{
 			return "exit";
 		}
 		else {
-			System.out.println("Error: Invalid input!(Check if you are using English or if you loss the \";\")");
+			System.out.println("Error: Invalid input!(Check if you are using English )");
 			return "inputError";
 		}
 		
