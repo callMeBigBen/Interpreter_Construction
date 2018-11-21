@@ -1,5 +1,4 @@
-package syntax;
-
+package Lexer;
 public class Token {
 	String content ;
 	int code;
@@ -132,12 +131,15 @@ public class Token {
 		else if (content.equals("\'")) {
 			this.code=39;
 		}
-		else if (content.equals("-")) {//此处识别为减号
+		else if (content.equals("-")) {//锟剿达拷识锟斤拷为锟斤拷锟斤拷
 			this.code=40;
 		}
-		else if (content.equals("-_")) {//此处识别为负号
+		else if (content.equals("-_")) {//锟剿达拷识锟斤拷为锟斤拷锟斤拷
 			this.content="-";
 			this.code=41;
+		}
+		else if(content.equals("print")) {
+			this.code = 42;
 		}
 		else{
 			this.code=0;

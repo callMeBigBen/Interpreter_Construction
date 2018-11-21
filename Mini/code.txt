@@ -1,0 +1,9 @@
+int a = -1;
+double b = 2.0;
+boolean c = true;
+char d = 'g';
+string str = "abc";
+boolean test1= true&&true;
+boolean test2 = false||true;
+boolean test3 = !false;
+a = -2;
