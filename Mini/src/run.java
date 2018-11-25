@@ -27,7 +27,8 @@ public class run {
 	static int lineNum = 0;
 	//添加值
 	public static void fill_list(){
-		//character or number:0
+		//character:-1
+		//number:-2
 		//
 		reserved_word.add("boolean"); //1 
 		reserved_word.add("char");	   //2
@@ -217,9 +218,15 @@ public class run {
 			movement+=tmpstr.length();
 			
 			Token tokenObj = new Token();
-			tokenObj.put(tmpstr,lineNum);
-			tokenObj.confirmCode();
-			tokens.add(tokenObj);
+			if(tokens.get(tokens.size()-1).code==41){
+				tokens.get(tokens.size()-1).put("-"+tmpstr,lineNum);
+				tokens.get(tokens.size()-1).confirmCode();
+			}
+			else{
+				tokenObj.put(tmpstr,lineNum);
+				tokenObj.confirmCode();
+				tokens.add(tokenObj);
+			}		
 		}
 		//单符号开头
 		else if(ch=='+'||ch=='*'||ch=='/'

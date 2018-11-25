@@ -1,5 +1,7 @@
 package syntax;
 
+import java.util.regex.Pattern;
+
 public class Token {
 	String content ;
 	int code;
@@ -10,7 +12,7 @@ public class Token {
 	
 	public void put(String _token,int _line){
 		this.content = _token;
-		this.code = -1;
+		this.code = 0;
 		this.line = _line;
 	}
 	
@@ -138,6 +140,12 @@ public class Token {
 		else if (content.equals("-_")) {//此处识别为负号
 			this.content="-";
 			this.code=41;
+		}
+		else if(Pattern.matches("(-)?[0-9]+(.[0-9])?", content)){//识别数字
+			this.code=-2;
+		}
+		else if(Pattern.matches("[A-Za-z][A-Za-z|1-9|_]*", content)){//识别标识符
+			this.code=-1;
 		}
 		else{
 			this.code=0;
