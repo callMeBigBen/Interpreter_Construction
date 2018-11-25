@@ -1,4 +1,5 @@
 package Lexer;
+
 import java.util.regex.Pattern;
 
 public class Token {
@@ -133,18 +134,27 @@ public class Token {
 		else if (content.equals("\'")) {
 			this.code=39;
 		}
-		else if (content.equals("-")) {//æ­¤å¤„è¯†åˆ«ä¸ºå‡å·
+		else if (content.equals("-")) {//´Ë´¦Ê¶±ğÎª¼õºÅ
 			this.code=40;
 		}
-		else if (content.equals("-_")) {//æ­¤å¤„è¯†åˆ«ä¸ºè´Ÿå·
+		else if (content.equals("-_")) {//´Ë´¦Ê¶±ğÎª¸ººÅ
 			this.content="-";
 			this.code=41;
 		}
-		else if(Pattern.matches("(-)?[0-9]+(.[0-9])?", content)){//è¯†åˆ«æ•°å­—
+		else if(Pattern.matches("[A-Za-z][A-Za-z|1-9|_]*", content)){//Ê¶±ğ±êÊ¶·û
+			this.code=-1;
+		}
+		else if(Pattern.matches("(-)?[0-9]+(.[0-9]+)", content)){//Ê¶±ğ¸¡µãÊı
 			this.code=-2;
 		}
-		else if(Pattern.matches("[A-Za-z][A-Za-z|1-9|_]*", content)){//è¯†åˆ«æ ‡è¯†ç¬¦
-			this.code=-1;
+		else if(Pattern.matches("(-)?[0-9]+?", content)){//Ê¶±ğÕûÊı
+			this.code=-3;
+		}
+		else if(Pattern.matches("\'(\\S|\\s)\'", content)){//Ê¶±ğ×Ö·û
+			this.code=-4;
+		}
+		else if(Pattern.matches("\"(\\S|\\s)*\"", content)){//Ê¶±ğ×Ö·û´®
+			this.code=-5;
 		}
 		else{
 			this.code=0;
