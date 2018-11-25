@@ -1,6 +1,11 @@
+<<<<<<< HEAD:Mini/src/Lexer/Token.java
 package Lexer;
+=======
+package syntax;
+
 import java.util.regex.Pattern;
 
+>>>>>>> f7414af7af9778d1c3ad621f46c8f5c07366cc89:Mini/src/Token.java
 public class Token {
 	String content ;
 	int code;
@@ -133,18 +138,23 @@ public class Token {
 		else if (content.equals("\'")) {
 			this.code=39;
 		}
-		else if (content.equals("-")) {//此处识别为减号
+		else if (content.equals("-")) {//�˴�ʶ��Ϊ����
 			this.code=40;
 		}
-		else if (content.equals("-_")) {//此处识别为负号
+		else if (content.equals("-_")) {//�˴�ʶ��Ϊ����
 			this.content="-";
 			this.code=41;
 		}
-		else if(Pattern.matches("(-)?[0-9]+(.[0-9])?", content)){//识别数字
+<<<<<<< HEAD:Mini/src/Lexer/Token.java
+		else if(content.equals("print")) {
+			this.code = 42;
+=======
+		else if(Pattern.matches("(-)?[0-9]+(.[0-9])?", content)){//ʶ������
 			this.code=-2;
 		}
-		else if(Pattern.matches("[A-Za-z][A-Za-z|1-9|_]*", content)){//识别标识符
+		else if(Pattern.matches("[A-Za-z][A-Za-z|1-9|_]*", content)){//ʶ���ʶ��
 			this.code=-1;
+>>>>>>> f7414af7af9778d1c3ad621f46c8f5c07366cc89:Mini/src/Token.java
 		}
 		else{
 			this.code=0;

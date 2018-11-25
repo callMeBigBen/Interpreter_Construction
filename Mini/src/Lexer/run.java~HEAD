@@ -10,21 +10,22 @@ import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import Parser.*;
 
 public class run {
 	
-	//定义保留字
+	//���屣����
 	static ArrayList<String> reserved_word = new ArrayList<String>();
-	//定义运算符
+	//���������
 	static ArrayList<String> operator = new ArrayList<String>();
-	//定义标识符表
+	//�����ʶ����
 	static ArrayList<String> identifier = new ArrayList<String>();
-	//定义token映射表
+	//����tokenӳ���
 	//static HashMap<String,Integer> tokens = new HashMap<String,Integer>();
 	static ArrayList<Token> tokens = new ArrayList<Token>();
 	//LineNum
 	static int lineNum = 0;
-	//添加值
+	//���ֵ
 	public static void fill_list(){
 		//character:-1
 		//number:-2
@@ -74,17 +75,17 @@ public class run {
 	}
 	
 	
-	//查找是否为保留字,并且返回对应的类别码
+	//�����Ƿ�Ϊ������,���ҷ��ض�Ӧ�������
 	public static boolean isReserved(String str){
 		for(String rsvdwd:reserved_word){
 			if(rsvdwd.equals(str)){
-				return true;	//是保留字则返回T
+				return true;	//�Ǳ������򷵻�T
 			}	
 		}
-		return false;//不是保留字，返回F
+		return false;//���Ǳ����֣�����F
 	}
 	
-	//判断是否为字母
+	//�ж��Ƿ�Ϊ��ĸ
 	public static boolean isLetter(char letter){
 		if(letter>='a'&&letter<='z' ||letter>='A'&&letter<='Z' )
 			return true;
@@ -92,7 +93,7 @@ public class run {
 			return false;
 	}
 	
-	//判断是否为数字
+	//�ж��Ƿ�Ϊ����
 	public static boolean isNumber(char letter){
 		if(letter>='0'&&letter<='9')
 			return true;
@@ -100,13 +101,13 @@ public class run {
 			return false;
 	}
 	
-	//预处理
+	//Ԥ����
 	public static String preProcess(String sourceCode){
 		int len = sourceCode.length();
 		StringBuffer newCode = new StringBuffer();
 		
 		for(int i=0;i<len;i++){
-			//跳过单行注释
+			//��������ע��
 			if(sourceCode.charAt(i)=='/'&&sourceCode.charAt(i+1)=='/'){
 				i+=2;
 				while(sourceCode.charAt(i)!='\n'){
@@ -114,37 +115,37 @@ public class run {
 				}
 				//lineNum++;
 			}
-			//跳过多行注释
+			//��������ע��
 			if((sourceCode.charAt(i)=='/'&&sourceCode.charAt(i+1)=='*')){
 				i+=2;
 				while(!(sourceCode.charAt(i)=='*'&&sourceCode.charAt(i+1)=='/')){
 					if(sourceCode.charAt(i)=='\n'){
 						lineNum++;
 					}
-					i++;//继续扫描
+					i++;//����ɨ��
 					if (i >= len)
 					{
-					System.out.println("注释出错，没有找到 */，程序结束！！！\n");
+					System.out.println("ע�ͳ���û���ҵ� */���������������\n");
 					System.exit(0);
 					}
 				}
 				i+=2;
 			}
-			//正常收集
+			//�����ռ�
 			if(sourceCode.charAt(i)!='\t' 
 			   ){
 				newCode.append(sourceCode.charAt(i));
 			}
 		}
 		
-		//源代码转换
+		//Դ����ת��
 		return newCode.toString();	
 	}
 	
 	
 	/*
-	 * 词法分类函数：分出单个token，得到对应的类型并且保存
-	 * 类型：1.保留字; 2.标识符; 3.数字;4.符号,5.字符串,6.字符
+	 * �ʷ����ຯ�����ֳ�����token���õ���Ӧ�����Ͳ��ұ���
+	 * ���ͣ�1.������; 2.��ʶ��; 3.����;4.����,5.�ַ���,6.�ַ�
 	 */
 	/**
 	 * @param sourceCode
@@ -153,23 +154,23 @@ public class run {
 	 */
 	public static int scanner(String sourceCode,int currPosition){
 		//int tag = -1;
-		int movement = 0;//用于返回的移动量，即读取token之后要改变读取位置，功能类似C的指针
+		int movement = 0;//���ڷ��ص��ƶ���������ȡtoken֮��Ҫ�ı��ȡλ�ã���������C��ָ��
 		int len = sourceCode.length();
 		StringBuffer token = new StringBuffer();
 		char ch = sourceCode.charAt(currPosition);
 		
-		//过滤空格
+		//���˿ո�
 		while(ch==' '){
 			currPosition++;
 			ch = sourceCode.charAt(currPosition);
 			movement++;
 		}
 		
-		//字母开头，开始记录token
+		//��ĸ��ͷ����ʼ��¼token
 		if(isLetter(ch)&&currPosition<len-1){
 			token.append(sourceCode.charAt(currPosition));
 			currPosition++;
-			//后面是数字或者字母，继续记录token
+			//���������ֻ�����ĸ��������¼token
 			while((isLetter(sourceCode.charAt(currPosition))
 					||isNumber(sourceCode.charAt(currPosition)))
 					&&currPosition<len-1){
@@ -180,14 +181,14 @@ public class run {
 			String tmpstr=token.toString();		
 			movement+=tmpstr.length();
 			
-			//查保留字表,修改字符码
+			//�鱣���ֱ�,�޸��ַ���
 			Token tokenObj = new Token();
 			tokenObj.put(tmpstr,lineNum);
 			tokenObj.confirmCode();
 			tokens.add(tokenObj);
 			
 		}
-		//数字开头
+		//���ֿ�ͷ
 		else if(isNumber(ch)&&currPosition<len-1){
 			token.append(sourceCode.charAt(currPosition));
 			currPosition++;
@@ -227,7 +228,7 @@ public class run {
 				tokens.add(tokenObj);
 			}		
 		}
-		//单符号开头
+		//�����ſ�ͷ
 		else if(ch=='+'||ch=='*'||ch=='/'
 				||ch=='('||ch==')'||ch=='['||ch==']'||ch=='{'
 				||ch=='}'||ch=='%'||ch==','||ch==';'){
@@ -241,7 +242,7 @@ public class run {
 			tokens.add(tokenObj);
 			
 		}
-		//可能的复合符号开头
+		//���ܵĸ��Ϸ��ſ�ͷ
 		else if((ch=='!'||ch=='>'||ch=='<'||ch=='&'||ch=='|'||ch=='='||ch=='-')
 				&&currPosition<len-1){
 			if(ch=='!'&&sourceCode.charAt(currPosition+1)=='='){
@@ -264,11 +265,44 @@ public class run {
 				tokenObj.confirmCode();
 				tokens.add(tokenObj);
 			}
-			//识别“-”为负号，但是先要防止tokens为空出错(因为要检测tokens中前一个元素，可能没有元素）
+			//ʶ��-��Ϊ���ţ�������Ҫ��ֹtokensΪ�ճ���(��ΪҪ���tokens��ǰһ��Ԫ�أ�����û��Ԫ�أ�
 			else if(ch=='-'&&tokens.isEmpty()){
 				System.out.println("Line:"+lineNum+"At"+currPosition+"  Syntax Error: '-' can not be the head of the line!");
+<<<<<<< HEAD:Mini/src/Lexer/run.java
+				/*token.append(sourceCode.charAt(currPosition));
+				currPosition++;
+				//���ܷ�ֹ������
+				//if(currPosition<(len-1)&&!isNumber(sourceCode.charAt(currPosition))){
+				//	System.out.println("Line:"+lineNum+"Error,as a nagative sign,'-'can only followed by a number!");
+				//	System.exit(0);
+				//}
+				boolean doted =false;
+				while((currPosition<(len-1)&&isNumber(sourceCode.charAt(currPosition)))
+						||sourceCode.charAt(currPosition)=='.'){
+					if(isNumber(sourceCode.charAt(currPosition))){
+						token.append(sourceCode.charAt(currPosition));
+					}
+					else if(!doted&&sourceCode.charAt(currPosition)=='.'){
+						token.append(sourceCode.charAt(currPosition));
+						doted=true;
+					}
+					else if(doted&&sourceCode.charAt(currPosition)=='.'){
+						System.out.println("Line:"+lineNum+" Error, more than one dot. At "+(currPosition+1));
+						System.exit(0);
+					}
+					currPosition++;
+				}
+				String tmpstr = token.toString();
+				movement+=tmpstr.length();
+				
+				Token tokenObj = new Token();
+				tokenObj.put(tmpstr,lineNum);
+				tokenObj.confirmCode();
+				tokens.add(tokenObj);*/
+=======
+>>>>>>> f7414af7af9778d1c3ad621f46c8f5c07366cc89:Mini/src/run.java
 			}
-			//识别“-”为减号
+			//ʶ��-��Ϊ����
 			else if(ch=='-'&&(tokens.get(tokens.size()-1).code==0)){
 				token.append(ch);		
 				String tmpstr = token.toString();
@@ -279,7 +313,7 @@ public class run {
 				tokenObj.confirmCode();
 				tokens.add(tokenObj);
 			}
-			//识别“-”为负号，前面是左括号或者比较、赋值符号
+			//ʶ��-��Ϊ���ţ�ǰ���������Ż��߱Ƚϡ���ֵ����
 			else if(ch=='-'&&(
 					tokens.get(tokens.size()-1).code==16
 					||tokens.get(tokens.size()-1).code==24
@@ -291,7 +325,7 @@ public class run {
 					||tokens.get(tokens.size()-1).code==30)){
 				token.append(sourceCode.charAt(currPosition));
 				currPosition++;
-				//识别为负号之后，后面如果不是标识符或数字或左括号，报错
+				//ʶ��Ϊ����֮�󣬺���������Ǳ�ʶ�������ֻ������ţ�����
 				if((currPosition<len-1)
 						&&!isLetter(sourceCode.charAt(currPosition))
 						&&!isNumber(sourceCode.charAt(currPosition))){
@@ -307,7 +341,7 @@ public class run {
 				tokenObj.confirmCode();
 				tokens.add(tokenObj);
 			}
-			//识别未知负号
+			//ʶ��δ֪����
 			else if(ch=='-'){
 				System.out.println("Line:"+lineNum+" At "+currPosition+" unknown '-'");
 				System.exit(0);
@@ -388,7 +422,7 @@ public class run {
 				tokens.add(tokenObj);
 			}
 		}
-		//双引号
+		//˫����
 		else if(ch=='\"'&&currPosition<len-1){
 			token.append(sourceCode.charAt(currPosition));
 			currPosition++;
@@ -409,15 +443,20 @@ public class run {
 			tokenObj.confirmCode();
 			tokens.add(tokenObj);		
 		}
-		//单引号
+		//������
 				else if(ch=='\''&&currPosition<len-1){
 					token.append(sourceCode.charAt(currPosition));
 					currPosition++;
 					int charLength = 1;
 				    while(sourceCode.charAt(currPosition)!='\''){
 				    	if(charLength>1){
-				    		System.out.println("Line:"+lineNum+" 字符超长，语法错误，位置："+currPosition+":"+sourceCode.charAt(currPosition));
+<<<<<<< HEAD:Mini/src/Lexer/run.java
+				    		System.out.println("Line:"+lineNum+" �ַ��������﷨����λ�ã�"+currPosition+":"+sourceCode.charAt(currPosition));
+				    		System.exit(0);
+=======
+				    		System.out.println("Line:"+lineNum+" �ַ��������﷨����λ�ã�"+currPosition+":"+sourceCode.charAt(currPosition));
 				    		//System.exit(0);
+>>>>>>> f7414af7af9778d1c3ad621f46c8f5c07366cc89:Mini/src/run.java
 				    	}
 				    	token.append(sourceCode.charAt(currPosition));
 				    	charLength++;
@@ -437,7 +476,7 @@ public class run {
 					tokens.add(tokenObj);			
 				}
 		else{
-			//不能识别的未知符号，如中文引号
+			//����ʶ���δ֪���ţ�����������
 			System.out.println("Line:"+lineNum+" Error, unknown character. At "+(currPosition+1));
 			System.exit(0);
 		}
@@ -445,7 +484,7 @@ public class run {
 		return movement;
 	}
 	
-	//读取文件函数
+	//��ȡ�ļ�����
 	public static String readToString(String fileName) {  
         String encoding = "UTF-8";  
         File file = new File(fileName);  
@@ -473,10 +512,10 @@ public class run {
 	public static void main(String[] args) {
 		fill_list();
 		//System.out.println(operator.get(0));
-		//读取代码
+		//��ȡ����
 		try {
-			//读入文本
-			//预处理：消除注释
+			//�����ı�
+			//Ԥ��������ע��
 			String inputStr = preProcess(readToString("code.txt"));
 			File file = new File("code2.txt");
 			file.createNewFile();
@@ -486,7 +525,7 @@ public class run {
 			writer.close();	
 			BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(new File("code2.txt"))));
 			
-			//扫描
+			//ɨ��
 			String newSrc = reader.readLine();
 			lineNum++;
 			while(newSrc!=null){
