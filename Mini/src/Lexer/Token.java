@@ -16,6 +16,30 @@ public class Token {
 		this.line = _line;
 	}
 	
+	public String getContent() {
+		return content;
+	}
+
+	public void setContent(String content) {
+		this.content = content;
+	}
+
+	public int getCode() {
+		return code;
+	}
+
+	public void setCode(int code) {
+		this.code = code;
+	}
+
+	public int getLine() {
+		return line;
+	}
+
+	public void setLine(int line) {
+		this.line = line;
+	}
+
 	public void confirmCode(){
 		if(content.equals("boolean")){
 			this.code=1;
@@ -134,30 +158,37 @@ public class Token {
 		else if (content.equals("\'")) {
 			this.code=39;
 		}
-		else if (content.equals("-")) {//´Ë´¦Ê¶±ðÎª¼õºÅ
+		else if (content.equals("-")) {//ï¿½Ë´ï¿½Ê¶ï¿½ï¿½Îªï¿½ï¿½ï¿½ï¿½
 			this.code=40;
 		}
-		else if (content.equals("-_")) {//´Ë´¦Ê¶±ðÎª¸ººÅ
+		else if (content.equals("-_")) {//ï¿½Ë´ï¿½Ê¶ï¿½ï¿½Îªï¿½ï¿½ï¿½ï¿½
 			this.content="-";
 			this.code=41;
 		}
-		else if(Pattern.matches("[A-Za-z][A-Za-z|1-9|_]*", content)){//Ê¶±ð±êÊ¶·û
+		else if (content.equals("print")) {//ï¿½Ë´ï¿½Ê¶ï¿½ï¿½Îªï¿½ï¿½ï¿½ï¿½
+			this.code=-7;
+		}
+		else if(Pattern.matches("[A-Za-z][A-Za-z|1-9|_]*", content)){//Ê¶ï¿½ï¿½ï¿½Ê¶ï¿½ï¿½
 			this.code=-1;
 		}
-		else if(Pattern.matches("(-)?[0-9]+(.[0-9]+)", content)){//Ê¶±ð¸¡µãÊý
+		else if(Pattern.matches("(-)?[0-9]+(.[0-9]+)", content)){//Ê¶ï¿½ð¸¡µï¿½ï¿½ï¿½
 			this.code=-2;
 		}
-		else if(Pattern.matches("(-)?[0-9]+?", content)){//Ê¶±ðÕûÊý
+		else if(Pattern.matches("[1-9]+[0-9]*?", content)){//Ê¶ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 			this.code=-3;
 		}
-		else if(Pattern.matches("\'(\\S|\\s)\'", content)){//Ê¶±ð×Ö·û
+		else if(Pattern.matches("(-)?[0-9]+?", content)){//Ê¶ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 			this.code=-4;
 		}
-		else if(Pattern.matches("\"(\\S|\\s)*\"", content)){//Ê¶±ð×Ö·û´®
+		else if(Pattern.matches("\'(\\S|\\s)\'", content)){//Ê¶ï¿½ï¿½ï¿½Ö·ï¿½
 			this.code=-5;
+		}
+		else if(Pattern.matches("\"(\\S|\\s)*\"", content)){//Ê¶ï¿½ï¿½ï¿½Ö·ï¿½ï¿½ï¿½
+			this.code=-6;
 		}
 		else{
 			this.code=0;
 		}
 	}
+
 }

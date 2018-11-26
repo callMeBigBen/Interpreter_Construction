@@ -1,4 +1,4 @@
-int a = -1;
+int a = 1;
 double b = 2.0;
 boolean c = true;
 char d = 'g';
