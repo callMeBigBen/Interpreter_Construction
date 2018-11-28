@@ -1,4 +1,5 @@
-package Lexer;
+package syntax;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -13,18 +14,18 @@ import java.util.HashMap;
 
 public class run {
 	
-	//å®šä¹‰ä¿ç•™å­—
+	//¶¨Òå±£Áô×Ö
 	static ArrayList<String> reserved_word = new ArrayList<String>();
-	//å®šä¹‰è¿ç®—ç¬¦
+	//¶¨ÒåÔËËã·û
 	static ArrayList<String> operator = new ArrayList<String>();
-	//å®šä¹‰æ ‡è¯†ç¬¦è¡¨
+	//¶¨Òå±êÊ¶·û±í
 	static ArrayList<String> identifier = new ArrayList<String>();
-	//å®šä¹‰tokenæ˜ å°„è¡¨
+	//¶¨ÒåtokenÓ³Éä±í
 	//static HashMap<String,Integer> tokens = new HashMap<String,Integer>();
 	static ArrayList<Token> tokens = new ArrayList<Token>();
 	//LineNum
 	static int lineNum = 0;
-	//æ·»åŠ å€¼
+	//Ìí¼ÓÖµ
 	public static void fill_list(){
 		//character:-1
 		//number:-2
@@ -74,17 +75,17 @@ public class run {
 	}
 	
 	
-	//æŸ¥æ‰¾æ˜¯å¦ä¸ºä¿ç•™å­—,å¹¶ä¸”è¿”å›å¯¹åº”çš„ç±»åˆ«ç 
+	//²éÕÒÊÇ·ñÎª±£Áô×Ö,²¢ÇÒ·µ»Ø¶ÔÓ¦µÄÀà±ğÂë
 	public static boolean isReserved(String str){
 		for(String rsvdwd:reserved_word){
 			if(rsvdwd.equals(str)){
-				return true;	//æ˜¯ä¿ç•™å­—åˆ™è¿”å›T
+				return true;	//ÊÇ±£Áô×ÖÔò·µ»ØT
 			}	
 		}
-		return false;//ä¸æ˜¯ä¿ç•™å­—ï¼Œè¿”å›F
+		return false;//²»ÊÇ±£Áô×Ö£¬·µ»ØF
 	}
 	
-	//åˆ¤æ–­æ˜¯å¦ä¸ºå­—æ¯
+	//ÅĞ¶ÏÊÇ·ñÎª×ÖÄ¸
 	public static boolean isLetter(char letter){
 		if(letter>='a'&&letter<='z' ||letter>='A'&&letter<='Z' )
 			return true;
@@ -92,7 +93,7 @@ public class run {
 			return false;
 	}
 	
-	//åˆ¤æ–­æ˜¯å¦ä¸ºæ•°å­—
+	//ÅĞ¶ÏÊÇ·ñÎªÊı×Ö
 	public static boolean isNumber(char letter){
 		if(letter>='0'&&letter<='9')
 			return true;
@@ -100,13 +101,13 @@ public class run {
 			return false;
 	}
 	
-	//é¢„å¤„ç†
+	//Ô¤´¦Àí
 	public static String preProcess(String sourceCode){
 		int len = sourceCode.length();
 		StringBuffer newCode = new StringBuffer();
 		
 		for(int i=0;i<len;i++){
-			//è·³è¿‡å•è¡Œæ³¨é‡Š
+			//Ìø¹ıµ¥ĞĞ×¢ÊÍ
 			if(sourceCode.charAt(i)=='/'&&sourceCode.charAt(i+1)=='/'){
 				i+=2;
 				while(sourceCode.charAt(i)!='\n'){
@@ -114,37 +115,37 @@ public class run {
 				}
 				//lineNum++;
 			}
-			//è·³è¿‡å¤šè¡Œæ³¨é‡Š
+			//Ìø¹ı¶àĞĞ×¢ÊÍ
 			if((sourceCode.charAt(i)=='/'&&sourceCode.charAt(i+1)=='*')){
 				i+=2;
 				while(!(sourceCode.charAt(i)=='*'&&sourceCode.charAt(i+1)=='/')){
 					if(sourceCode.charAt(i)=='\n'){
 						lineNum++;
 					}
-					i++;//ç»§ç»­æ‰«æ
+					i++;//¼ÌĞøÉ¨Ãè
 					if (i >= len)
 					{
-					System.out.println("æ³¨é‡Šå‡ºé”™ï¼Œæ²¡æœ‰æ‰¾åˆ° */ï¼Œç¨‹åºç»“æŸï¼ï¼ï¼\n");
+					System.out.println("×¢ÊÍ³ö´í£¬Ã»ÓĞÕÒµ½ */£¬³ÌĞò½áÊø£¡£¡£¡\n");
 					System.exit(0);
 					}
 				}
 				i+=2;
 			}
-			//æ­£å¸¸æ”¶é›†
+			//Õı³£ÊÕ¼¯
 			if(sourceCode.charAt(i)!='\t' 
 			   ){
 				newCode.append(sourceCode.charAt(i));
 			}
 		}
 		
-		//æºä»£ç è½¬æ¢
+		//Ô´´úÂë×ª»»
 		return newCode.toString();	
 	}
 	
 	
 	/*
-	 * è¯æ³•åˆ†ç±»å‡½æ•°ï¼šåˆ†å‡ºå•ä¸ªtokenï¼Œå¾—åˆ°å¯¹åº”çš„ç±»å‹å¹¶ä¸”ä¿å­˜
-	 * ç±»å‹ï¼š1.ä¿ç•™å­—; 2.æ ‡è¯†ç¬¦; 3.æ•°å­—;4.ç¬¦å·,5.å­—ç¬¦ä¸²,6.å­—ç¬¦
+	 * ´Ê·¨·ÖÀàº¯Êı£º·Ö³öµ¥¸ötoken£¬µÃµ½¶ÔÓ¦µÄÀàĞÍ²¢ÇÒ±£´æ
+	 * ÀàĞÍ£º1.±£Áô×Ö; 2.±êÊ¶·û; 3.Êı×Ö;4.·ûºÅ,5.×Ö·û´®,6.×Ö·û
 	 */
 	/**
 	 * @param sourceCode
@@ -153,23 +154,30 @@ public class run {
 	 */
 	public static int scanner(String sourceCode,int currPosition){
 		//int tag = -1;
-		int movement = 0;//ç”¨äºè¿”å›çš„ç§»åŠ¨é‡ï¼Œå³è¯»å–tokenä¹‹åè¦æ”¹å˜è¯»å–ä½ç½®ï¼ŒåŠŸèƒ½ç±»ä¼¼Cçš„æŒ‡é’ˆ
+		int movement = 0;//ÓÃÓÚ·µ»ØµÄÒÆ¶¯Á¿£¬¼´¶ÁÈ¡tokenÖ®ºóÒª¸Ä±ä¶ÁÈ¡Î»ÖÃ£¬¹¦ÄÜÀàËÆCµÄÖ¸Õë
 		int len = sourceCode.length();
 		StringBuffer token = new StringBuffer();
 		char ch = sourceCode.charAt(currPosition);
 		
-		//è¿‡æ»¤ç©ºæ ¼
+		//¹ıÂË¿Õ¸ñ
 		while(ch==' '){
-			currPosition++;
-			ch = sourceCode.charAt(currPosition);
-			movement++;
+			if(currPosition<len-1){
+				currPosition++;
+				ch = sourceCode.charAt(currPosition);
+				movement++;
+			}
+			else{
+				movement++;
+				break;
+			}
+			
 		}
 		
-		//å­—æ¯å¼€å¤´ï¼Œå¼€å§‹è®°å½•token
+		//×ÖÄ¸¿ªÍ·£¬¿ªÊ¼¼ÇÂ¼token
 		if(isLetter(ch)&&currPosition<len-1){
 			token.append(sourceCode.charAt(currPosition));
 			currPosition++;
-			//åé¢æ˜¯æ•°å­—æˆ–è€…å­—æ¯ï¼Œç»§ç»­è®°å½•token
+			//ºóÃæÊÇÊı×Ö»òÕß×ÖÄ¸£¬¼ÌĞø¼ÇÂ¼token
 			while((isLetter(sourceCode.charAt(currPosition))
 					||isNumber(sourceCode.charAt(currPosition)))
 					&&currPosition<len-1){
@@ -180,14 +188,14 @@ public class run {
 			String tmpstr=token.toString();		
 			movement+=tmpstr.length();
 			
-			//æŸ¥ä¿ç•™å­—è¡¨,ä¿®æ”¹å­—ç¬¦ç 
+			//²é±£Áô×Ö±í,ĞŞ¸Ä×Ö·ûÂë
 			Token tokenObj = new Token();
 			tokenObj.put(tmpstr,lineNum);
 			tokenObj.confirmCode();
 			tokens.add(tokenObj);
 			
 		}
-		//æ•°å­—å¼€å¤´
+		//Êı×Ö¿ªÍ·
 		else if(isNumber(ch)&&currPosition<len-1){
 			token.append(sourceCode.charAt(currPosition));
 			currPosition++;
@@ -227,7 +235,7 @@ public class run {
 				tokens.add(tokenObj);
 			}		
 		}
-		//å•ç¬¦å·å¼€å¤´
+		//µ¥·ûºÅ¿ªÍ·
 		else if(ch=='+'||ch=='*'||ch=='/'
 				||ch=='('||ch==')'||ch=='['||ch==']'||ch=='{'
 				||ch=='}'||ch=='%'||ch==','||ch==';'){
@@ -241,7 +249,7 @@ public class run {
 			tokens.add(tokenObj);
 			
 		}
-		//å¯èƒ½çš„å¤åˆç¬¦å·å¼€å¤´
+		//¿ÉÄÜµÄ¸´ºÏ·ûºÅ¿ªÍ·
 		else if((ch=='!'||ch=='>'||ch=='<'||ch=='&'||ch=='|'||ch=='='||ch=='-')
 				&&currPosition<len-1){
 			if(ch=='!'&&sourceCode.charAt(currPosition+1)=='='){
@@ -264,11 +272,11 @@ public class run {
 				tokenObj.confirmCode();
 				tokens.add(tokenObj);
 			}
-			//è¯†åˆ«â€œ-â€ä¸ºè´Ÿå·ï¼Œä½†æ˜¯å…ˆè¦é˜²æ­¢tokensä¸ºç©ºå‡ºé”™(å› ä¸ºè¦æ£€æµ‹tokensä¸­å‰ä¸€ä¸ªå…ƒç´ ï¼Œå¯èƒ½æ²¡æœ‰å…ƒç´ ï¼‰
+			//Ê¶±ğ¡°-¡±Îª¸ººÅ£¬µ«ÊÇÏÈÒª·ÀÖ¹tokensÎª¿Õ³ö´í(ÒòÎªÒª¼ì²âtokensÖĞÇ°Ò»¸öÔªËØ£¬¿ÉÄÜÃ»ÓĞÔªËØ£©
 			else if(ch=='-'&&tokens.isEmpty()){
 				System.out.println("Line:"+lineNum+"At"+currPosition+"  Syntax Error: '-' can not be the head of the line!");
 			}
-			//è¯†åˆ«â€œ-â€ä¸ºå‡å·
+			//Ê¶±ğ¡°-¡±Îª¼õºÅ
 			else if(ch=='-'&&(tokens.get(tokens.size()-1).code==0)){
 				token.append(ch);		
 				String tmpstr = token.toString();
@@ -279,7 +287,7 @@ public class run {
 				tokenObj.confirmCode();
 				tokens.add(tokenObj);
 			}
-			//è¯†åˆ«â€œ-â€ä¸ºè´Ÿå·ï¼Œå‰é¢æ˜¯å·¦æ‹¬å·æˆ–è€…æ¯”è¾ƒã€èµ‹å€¼ç¬¦å·
+			//Ê¶±ğ¡°-¡±Îª¸ººÅ£¬Ç°ÃæÊÇ×óÀ¨ºÅ»òÕß±È½Ï¡¢¸³Öµ·ûºÅ
 			else if(ch=='-'&&(
 					tokens.get(tokens.size()-1).code==16
 					||tokens.get(tokens.size()-1).code==24
@@ -291,7 +299,7 @@ public class run {
 					||tokens.get(tokens.size()-1).code==30)){
 				token.append(sourceCode.charAt(currPosition));
 				currPosition++;
-				//è¯†åˆ«ä¸ºè´Ÿå·ä¹‹åï¼Œåé¢å¦‚æœä¸æ˜¯æ ‡è¯†ç¬¦æˆ–æ•°å­—æˆ–å·¦æ‹¬å·ï¼ŒæŠ¥é”™
+				//Ê¶±ğÎª¸ººÅÖ®ºó£¬ºóÃæÈç¹û²»ÊÇ±êÊ¶·û»òÊı×Ö»ò×óÀ¨ºÅ£¬±¨´í
 				if((currPosition<len-1)
 						&&!isLetter(sourceCode.charAt(currPosition))
 						&&!isNumber(sourceCode.charAt(currPosition))){
@@ -307,7 +315,7 @@ public class run {
 				tokenObj.confirmCode();
 				tokens.add(tokenObj);
 			}
-			//è¯†åˆ«æœªçŸ¥è´Ÿå·
+			//Ê¶±ğÎ´Öª¸ººÅ
 			else if(ch=='-'){
 				System.out.println("Line:"+lineNum+" At "+currPosition+" unknown '-'");
 				System.exit(0);
@@ -388,7 +396,7 @@ public class run {
 				tokens.add(tokenObj);
 			}
 		}
-		//åŒå¼•å·
+		//Ë«ÒıºÅ
 		else if(ch=='\"'&&currPosition<len-1){
 			token.append(sourceCode.charAt(currPosition));
 			currPosition++;
@@ -409,35 +417,39 @@ public class run {
 			tokenObj.confirmCode();
 			tokens.add(tokenObj);		
 		}
-		//å•å¼•å·
-				else if(ch=='\''&&currPosition<len-1){
-					token.append(sourceCode.charAt(currPosition));
-					currPosition++;
-					int charLength = 1;
-				    while(sourceCode.charAt(currPosition)!='\''){
-				    	if(charLength>1){
-				    		System.out.println("Line:"+lineNum+" å­—ç¬¦è¶…é•¿ï¼Œè¯­æ³•é”™è¯¯ï¼Œä½ç½®ï¼š"+currPosition+":"+sourceCode.charAt(currPosition));
-				    		//System.exit(0);
-				    	}
-				    	token.append(sourceCode.charAt(currPosition));
-				    	charLength++;
-				    	currPosition++;
-				    	if(currPosition>=len-1){
-				    		System.out.println("Error:Line: "+lineNum+" There is only one '\''");
-				    		System.exit(0);
-				    	}
-				    }
-				    token.append(sourceCode.charAt(currPosition));
-				    String tmpstr = token.toString();
-				    movement+=tmpstr.length();
-				    
-				    Token tokenObj = new Token();
-					tokenObj.put(tmpstr,lineNum);
-					tokenObj.confirmCode();
-					tokens.add(tokenObj);			
+		//µ¥ÒıºÅ
+		else if(ch=='\''&&currPosition<len-1){
+			token.append(sourceCode.charAt(currPosition));
+			currPosition++;
+			int charLength = 1;
+			while(sourceCode.charAt(currPosition)!='\''){
+				if(charLength>1){
+				    System.out.println("Line:"+lineNum+" ×Ö·û³¬³¤£¬Óï·¨´íÎó£¬Î»ÖÃ£º"+currPosition+":"+sourceCode.charAt(currPosition));
+				    //System.exit(0);
 				}
+				token.append(sourceCode.charAt(currPosition));
+				charLength++;
+				currPosition++;
+				if(currPosition>=len-1){
+				    System.out.println("Error:Line: "+lineNum+" There is only one '\''");
+				    System.exit(0);
+				}
+			}
+			token.append(sourceCode.charAt(currPosition));
+			String tmpstr = token.toString();
+			movement+=tmpstr.length();
+				    
+			Token tokenObj = new Token();
+			tokenObj.put(tmpstr,lineNum);
+			tokenObj.confirmCode();
+			tokens.add(tokenObj);			
+		}
+		
+		else if(ch==' '){
+			//do nothing
+		}
 		else{
-			//ä¸èƒ½è¯†åˆ«çš„æœªçŸ¥ç¬¦å·ï¼Œå¦‚ä¸­æ–‡å¼•å·
+			//²»ÄÜÊ¶±ğµÄÎ´Öª·ûºÅ£¬ÈçÖĞÎÄÒıºÅ
 			System.out.println("Line:"+lineNum+" Error, unknown character. At "+(currPosition+1));
 			System.exit(0);
 		}
@@ -445,7 +457,7 @@ public class run {
 		return movement;
 	}
 	
-	//è¯»å–æ–‡ä»¶å‡½æ•°
+	//¶ÁÈ¡ÎÄ¼şº¯Êı
 	public static String readToString(String fileName) {  
         String encoding = "UTF-8";  
         File file = new File(fileName);  
@@ -473,23 +485,25 @@ public class run {
 	public static void main(String[] args) {
 		fill_list();
 		//System.out.println(operator.get(0));
-		//è¯»å–ä»£ç 
+		//¶ÁÈ¡´úÂë
 		try {
-			//è¯»å…¥æ–‡æœ¬
-			//é¢„å¤„ç†ï¼šæ¶ˆé™¤æ³¨é‡Š
-			String inputStr = preProcess(readToString("code.txt"));
-			File file = new File("code2.txt");
+			//¶ÁÈëÎÄ±¾
+			//Ô¤´¦Àí£ºÏû³ı×¢ÊÍ
+			String inputStr = preProcess(readToString("D:/code.txt"));
+			File file = new File("D:/code2.txt");
 			file.createNewFile();
 			FileWriter writer = new FileWriter(file);
 			writer.write(inputStr);
 			writer.flush();
 			writer.close();	
-			BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(new File("code2.txt"))));
+			BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(new File("D:/code2.txt"))));
 			
-			//æ‰«æ
+			//É¨Ãè
 			String newSrc = reader.readLine();
+			
 			lineNum++;
 			while(newSrc!=null){
+				newSrc+=" ";//ÔÚÃ¿ĞĞÄ©Î²¼ÓÒ»¸öÎŞÒâÒå¿Õ¸ñ
 				int i = 0;
 				int len = newSrc.length();
 				while(i<len){
@@ -504,7 +518,6 @@ public class run {
 				System.out.println("line:"+tk.line+",  "+tk.content+",  Code:"+tk.code);
 			}
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		
