@@ -7,4 +7,5 @@ boolean test1= true&&true;
 boolean test2 = false||true;
 boolean test3 = !false;
 a = -2;
-print
+print(a);
+int m = -2

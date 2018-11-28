@@ -6,10 +6,12 @@ public class Token {
 	String content ;
 	int code;
 	int line;
-	Token(){
-		
-	}
 	
+	
+	public Token() {
+		// TODO Auto-generated constructor stub
+	}
+
 	public void put(String _token,int _line){
 		this.content = _token;
 		this.code = 0;

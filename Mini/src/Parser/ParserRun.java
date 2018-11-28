@@ -2,12 +2,25 @@ package Parser;
 import java.util.ArrayList;
 import java.util.*;
 import Lexer.*;
+import javafx.scene.shape.Circle;
 
-public class run {
+public class ParserRun {
 	static ArrayList<Token> tokens ;
 	//static Iterator<Token> iterator = tokens.iterator();
 	static int currPos = 0;
 	static int branchNum=0;
+	
+	public void start(ArrayList<Token> ts) {
+		tokens = ts;
+		Token EOF = new Token();
+		EOF.setCode(-8);
+		tokens.add(EOF);
+		try {
+			program();
+		} catch (Exception e) {
+			System.out.println(e.getMessage());
+		}
+	}
 	
 	public boolean isType() {
 		return tokens.get(currPos).getCode()==1||tokens.get(currPos).getCode()==2||
@@ -18,7 +31,7 @@ public class run {
 		return tokens.get(currPos).getCode()==-1;
 	}
 	public boolean isNum() {
-		return tokens.get(currPos).getCode()==-2||tokens.get(currPos).getCode()==-4;
+		return tokens.get(currPos).getCode()==-2||tokens.get(currPos).getCode()==-3||tokens.get(currPos).getCode()==-4;
 	}
 	public boolean  isBoolean() {
 		return tokens.get(currPos).getCode()==6||tokens.get(currPos).getCode()==7;
@@ -45,11 +58,19 @@ public class run {
 	}
 	//3
 	public void claimingList2() throws Exception{
-		if(tokens.get(currPos).getCode()==-8) {//to do
-			System.out.println("This is the end of parsings");
+		if(tokens.get(currPos).getCode()==-8) {
+			System.out.println("This is the end of parser");
 		}
 		else if(isType()) {
 			claiming();
+			claimingList2();
+		}
+		else if(isIdentifier()&&tokens.get(currPos+1).getCode()==24) {
+			exprClaiming();
+			claimingList2();
+		}
+		else if(isIdentifier()||tokens.get(currPos).getCode()==-7) {
+			call();
 			claimingList2();
 		}
 		else {
@@ -58,6 +79,7 @@ public class run {
 		}
 	}
 	//4
+	
 	public void claiming() throws Exception{
 		if(isType()) {
 			type();
@@ -67,7 +89,7 @@ public class run {
 				subClaiming();
 			}
 		}
-		else if(isIdentifier()||tokens.get(currPos).getCode()==-7) {
+		else if(isIdentifier()) {
 			call();
 		}
 		else {
@@ -77,7 +99,7 @@ public class run {
 	}
 	//5
 	public void subClaiming() throws Exception{
-		if(tokens.get(currPos).getCode()==22||tokens.get(currPos).getCode()==20) {
+		if(tokens.get(currPos).getCode()==22||tokens.get(currPos).getCode()==20||tokens.get(currPos).getCode()==24) {
 			subVarClaiming();
 		}
 		else if(tokens.get(currPos).getCode()==16) {
@@ -92,6 +114,7 @@ public class run {
 	public void subVarClaiming() throws Exception{
 		if(tokens.get(currPos).getCode()==22) {
 			System.out.print(tokens.get(currPos).getContent()+" ");
+			System.out.println();
 			currPos++;
 		}
 		else if(tokens.get(currPos).getCode()==20){
@@ -103,6 +126,7 @@ public class run {
 				currPos++;
 				if(tokens.get(currPos).getCode()==22) {
 					System.out.print(tokens.get(currPos).getContent()+" ");
+					System.out.println();
 					currPos++;
 				}
 				else {
@@ -113,6 +137,20 @@ public class run {
 			else {
 				throw new Exception("Line:"+tokens.get(currPos).getLine()
 						+ " Syntax Error: \"]\" needed ");
+			}
+		}
+		else if(tokens.get(currPos).getCode()==24) {
+			System.out.print(tokens.get(currPos).getContent()+" ");
+			currPos++;
+			logic1();
+			if(tokens.get(currPos).getCode()==22) {
+				System.out.print(tokens.get(currPos).getContent()+" ");
+				System.out.println();
+				currPos++;
+			}
+			else {
+				throw new Exception("Line:"+tokens.get(currPos).getLine()
+						+ " Syntax Error: \";\" needed at the end of every sentence.");
 			}
 		}
 		else {
@@ -344,12 +382,14 @@ public class run {
 	public void exprClaiming() throws Exception{
 		if(tokens.get(currPos).getCode()==22) {
 			System.out.print(tokens.get(currPos).getContent()+" ");
+			System.out.println();
 			currPos++;
 		}
 		else if(isIdentifier()) {
 			expr();
 			if(tokens.get(currPos).getCode()==22) {
 				System.out.print(tokens.get(currPos).getContent()+" ");
+				System.out.println();
 				currPos++;
 			}
 			else {
@@ -383,7 +423,7 @@ public class run {
 			currPos++;
 			logic1();
 		}
-		else if(tokens.get(currPos).getCode()==16||isIdentifier()||isNum()||isBoolean()){
+		else if(tokens.get(currPos).getCode()==16||isIdentifier()||isNum()||isBoolean()||tokens.get(currPos).getCode()==-5||tokens.get(currPos).getCode()==-6){
 			logic2();
 		}
 		else {
@@ -401,7 +441,7 @@ public class run {
 		if(tokens.get(currPos).getCode()==22) {
 			return;
 		}
-		else if(tokens.get(currPos).getCode()==32){
+		else if(tokens.get(currPos).getCode()==32||tokens.get(currPos).getCode()==31){
 			System.out.print(tokens.get(currPos).getContent()+" ");
 			currPos++;
 			logic3();
@@ -419,7 +459,7 @@ public class run {
 	}
 	//23
 	public void logic3sub()throws Exception{
-		if(tokens.get(currPos).getCode()==22) {
+		if(tokens.get(currPos).getCode()==22||tokens.get(currPos).getCode()==31||tokens.get(currPos).getCode()==32||tokens.get(currPos).getCode()==33) {
 			return;
 		}
 		else if(tokens.get(currPos).getCode()==31){
@@ -444,6 +484,9 @@ public class run {
 		else if(isBoolean()) {
 			System.out.print(tokens.get(currPos).getContent()+" ");
 			currPos++;
+		}
+		else if((tokens.get(currPos).getCode()==16||isIdentifier()||isNum())&&(tokens.get(currPos+1).getCode()==17||tokens.get(currPos+1).getCode()==22)) {
+			calExpr();
 		}
 		else if(tokens.get(currPos).getCode()==16||isIdentifier()||isNum()) {
 			calExpr();
@@ -473,7 +516,7 @@ public class run {
 	}
 	//27
 	public void subCalExpr() throws Exception{
-		if(isRelation()||tokens.get(currPos).getCode()==17) {
+		if(isRelation()||tokens.get(currPos).getCode()==17||tokens.get(currPos).getCode()==22) {
 			return;
 		}
 		else if(tokens.get(currPos).getCode()==34||tokens.get(currPos).getCode()==40) {
@@ -495,7 +538,7 @@ public class run {
 	//29
 	public void subTerm()throws Exception{
 		if(tokens.get(currPos).getCode()==34||tokens.get(currPos).getCode()==40||
-				isRelation()||tokens.get(currPos).getCode()==17) {
+				isRelation()||tokens.get(currPos).getCode()==17||tokens.get(currPos).getCode()==22) {
 			return;
 		}
 		else if(tokens.get(currPos).getCode()==35||tokens.get(currPos).getCode()==36||tokens.get(currPos).getCode()==37) {
@@ -552,7 +595,8 @@ public class run {
 	public void subVar()throws Exception{
 		 if(tokens.get(currPos).getCode()==22||isRelation()||tokens.get(currPos).getCode()==17||
 				 tokens.get(currPos).getCode()==31||tokens.get(currPos).getCode()==32||tokens.get(currPos).getCode()==34
-				 ||tokens.get(currPos).getCode()==35||tokens.get(currPos).getCode()==36||tokens.get(currPos).getCode()==37) {
+				 ||tokens.get(currPos).getCode()==35||tokens.get(currPos).getCode()==36
+				 ||tokens.get(currPos).getCode()==37||tokens.get(currPos).getCode()==24) {
 			 return;
 		 }
 		 else if(tokens.get(currPos).getCode()==16) {
@@ -592,11 +636,27 @@ public class run {
 		if(isIdentifier()) {
 			System.out.print(tokens.get(currPos).getContent()+" ");
 			 currPos++;
-			 arguList();
+			 if(tokens.get(currPos).getCode()==16) {
+				 System.out.print(tokens.get(currPos).getContent()+" ");
+				 currPos++;
+				 arguList();
+				 if(tokens.get(currPos).getCode()==17) {
+					 System.out.print(tokens.get(currPos).getContent()+" ");
+					 currPos++;
+				 }
+				 else {
+					 throw new Exception("Line:"+tokens.get(currPos).getLine()
+								+ " Missing \")\"!") ;
+				 }
+			 }
+			 else {
+				 throw new Exception("Line:"+tokens.get(currPos).getLine()
+							+ " Missing parameter list!") ;
+			 }
+
 		}
 		else if(tokens.get(currPos).getCode()==-7) {
-			System.out.print(tokens.get(currPos).getContent()+" ");
-			 currPos++;
+			 printFunc();
 		}
 		else {
 			 throw new Exception("Line:"+tokens.get(currPos).getLine()
@@ -713,12 +773,15 @@ public class run {
 	public void retSub()throws Exception{
 		if(tokens.get(currPos).getCode()==22||isBoolean()) {
 			System.out.print(tokens.get(currPos).getContent()+" ");
+			if(tokens.get(currPos).getCode()==22)
+				System.out.println();
 			currPos++;
 		}
 		else if(tokens.get(currPos).getCode()==16||isIdentifier()||isNum()) {
 			calExpr();
 			if(tokens.get(currPos).getCode()==22) {
 				System.out.print(tokens.get(currPos).getContent()+" ");
+				System.out.println();
 				currPos++;
 			}
 			else {
@@ -739,12 +802,15 @@ public class run {
 			if(tokens.get(currPos).getCode()==16) {
 				System.out.print(tokens.get(currPos).getContent()+" ");
 				currPos++;
-				if(tokens.get(currPos).getCode()==-5||tokens.get(currPos).getCode()==-6) {
+				if(tokens.get(currPos).getCode()==-5||tokens.get(currPos).getCode()==-6||isIdentifier()||isNum()||isBoolean()) {
 					System.out.print(tokens.get(currPos).getContent()+" ");
 					currPos++;
 					if(tokens.get(currPos).getCode()==17) {
+						System.out.print(tokens.get(currPos).getContent()+" ");
+						currPos++;
 						if(tokens.get(currPos).getCode()==22) {
 							System.out.print(tokens.get(currPos).getContent()+" ");
+							System.out.println();
 							currPos++;
 						}
 						else {

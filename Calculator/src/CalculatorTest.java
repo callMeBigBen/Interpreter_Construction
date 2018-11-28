@@ -58,7 +58,7 @@ public class CalculatorTest {
 					String str = input.getText();
 					try{
 						test.read(str);
-						double i = test.calculate(test.insertBlanks(str));
+						Double i = test.calculate(test.insertBlanks(str));
 						output.setText(Double.toString(i));
 					}
 					catch(Exception e){
