@@ -1,3 +1,5 @@
+package test;
+
 import java.awt.EventQueue;
 
 import javax.swing.JFrame;
@@ -8,7 +10,6 @@ import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 
 public class CalculatorTest {
-
 	private JFrame frmCalculator;
 	private JTextField input;
 	private JTextField output;
@@ -58,10 +59,13 @@ public class CalculatorTest {
 					String str = input.getText();
 					try{
 						test.read(str);
-						Double i = test.calculate(test.insertBlanks(str));
-						output.setText(Double.toString(i));
+						double i =0;
+						i = test.calculate(test.insertBlanks(str));//调用
+
+						output.setText("结果："+Double.toString(i)+"\n逆波兰式为:"+test.NBL);
 					}
 					catch(Exception e){
+						output.setText("Unknown Expression!");
 						output.setText(e.getMessage());
 					}
 					
