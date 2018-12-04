@@ -2,7 +2,6 @@ package Parser;
 import java.util.ArrayList;
 import java.util.*;
 import Lexer.*;
-import javafx.scene.shape.Circle;
 
 public class ParserRun {
 	static ArrayList<Token> tokens ;
@@ -13,7 +12,9 @@ public class ParserRun {
 	public void start(ArrayList<Token> ts) {
 		tokens = ts;
 		Token EOF = new Token();
+		int line = tokens.get(tokens.size()-1).getLine();
 		EOF.setCode(-8);
+		EOF.setLine(line);
 		tokens.add(EOF);
 		try {
 			program();
@@ -60,6 +61,8 @@ public class ParserRun {
 	public void claimingList2() throws Exception{
 		if(tokens.get(currPos).getCode()==-8) {
 			System.out.println("This is the end of parser");
+			System.out.println("*********************************************");
+			System.out.println("Below is the AST");
 		}
 		else if(isType()) {
 			claiming();
@@ -72,6 +75,9 @@ public class ParserRun {
 		else if(isIdentifier()||tokens.get(currPos).getCode()==-7) {
 			call();
 			claimingList2();
+		}
+		else if(tokens.get(currPos).getCode()==8||tokens.get(currPos).getCode()==10) {
+			return;
 		}
 		else {
 			throw new Exception("Line:"+tokens.get(currPos).getLine()
@@ -89,6 +95,21 @@ public class ParserRun {
 				subClaiming();
 			}
 		}
+//		else if(isType()&&tokens.get(currPos+1).getCode()==20) {
+//			type();
+//			System.out.print(tokens.get(currPos).getContent()+" ");
+//			currPos++;
+//			if(isType()&&tokens.get(currPos+1).getCode()==21) {
+//				System.out.print(tokens.get(currPos).getContent()+" ");
+//				currPos++;
+//				isIdentifier();
+//				subClaiming();
+//			}
+//			else {
+//				throw new Exception("Line:"+tokens.get(currPos).getLine()
+//						+ " Missing \"]\"!");
+//			}
+//		}
 		else if(isIdentifier()) {
 			call();
 		}
@@ -117,7 +138,32 @@ public class ParserRun {
 			System.out.println();
 			currPos++;
 		}
-		else if(tokens.get(currPos).getCode()==20){
+		else if(tokens.get(currPos).getCode()==20&&tokens.get(currPos+3).getCode()==24) {
+			System.out.print(tokens.get(currPos).getContent()+" ");
+			currPos++;
+			posInt();
+			if(tokens.get(currPos).getCode()==21) {
+				System.out.print(tokens.get(currPos).getContent()+" ");
+				currPos++;
+				System.out.print(tokens.get(currPos).getContent()+" ");
+				currPos++;
+				logic1();
+				if(tokens.get(currPos).getCode()==22) {
+					System.out.print(tokens.get(currPos).getContent()+" ");
+					System.out.println();
+					currPos++;
+				}
+				else {
+					throw new Exception("Line:"+tokens.get(currPos).getLine()
+							+ " Syntax Error: \";\" needed at the end of every sentence.");
+				}
+			}
+			else {
+				throw new Exception("Line:"+tokens.get(currPos).getLine()
+						+ " Syntax Error: \"]\" needed ");
+			}
+		}
+		else if(tokens.get(currPos).getCode()==20) {
 			System.out.print(tokens.get(currPos).getContent()+" ");
 			currPos++;
 			posInt();
@@ -211,6 +257,7 @@ public class ParserRun {
 			System.out.print(tokens.get(currPos).getContent()+" ");
 			currPos++;
 			compClaiming();
+			System.out.println();
 		}
 		else {
 			throw new Exception("Line:"+tokens.get(currPos).getLine()
@@ -251,6 +298,8 @@ public class ParserRun {
 	public void param() throws Exception{
 		type();
 		if(isIdentifier()) {
+			System.out.print(tokens.get(currPos).getContent()+" ");
+			currPos++;
 			if(tokens.get(currPos).getCode()==20) {
 				System.out.print(tokens.get(currPos).getContent()+" ");
 				currPos++;
@@ -259,7 +308,8 @@ public class ParserRun {
 					currPos++;
 				}
 				else {
-					throw new Exception("Line:"+tokens.get(currPos).getLine()								+ " Syntax Error:Missing \"]\" !");
+					throw new Exception("Line:"+tokens.get(currPos).getLine()
+							+ " Syntax Error:Missing \"]\" !");
 				}
 			}
 		}
@@ -273,6 +323,7 @@ public class ParserRun {
 		if(tokens.get(currPos).getCode()==18) {
 			System.out.print(tokens.get(currPos).getContent()+" ");
 			currPos++;
+			System.out.println();
 			funcMultiClaiming();
 			if(tokens.get(currPos).getCode()==19) {
 				System.out.print(tokens.get(currPos).getContent()+" ");
@@ -292,6 +343,7 @@ public class ParserRun {
 	public void funcMultiClaiming()throws Exception{
 		if(isType()){
 			claimingList();
+			multiClaiming2();
 			retClaiming();
 		}
 		else if(isIdentifier()) {
@@ -319,6 +371,7 @@ public class ParserRun {
 		if(tokens.get(currPos).getCode()==18) {
 			System.out.print(tokens.get(currPos).getContent()+" ");
 			currPos++;
+			System.out.println();
 			multiClaiming();
 			if(tokens.get(currPos).getCode()==19) {
 				System.out.print(tokens.get(currPos).getContent()+" ");
@@ -338,6 +391,7 @@ public class ParserRun {
 	public void multiClaiming() throws Exception{
 		if(isType()){
 			claimingList();
+			multiClaiming2();
 		}
 		else if(isIdentifier()) {
 			exprClaiming();
@@ -350,6 +404,9 @@ public class ParserRun {
 		else if(tokens.get(currPos).getCode()==10) {
 			whileExpr();
 			multiClaiming2();
+		}
+		else if(tokens.get(currPos).getCode()==15) {
+			retClaiming();
 		}
 		else {
 			throw new Exception("Line:"+tokens.get(currPos).getLine()
@@ -426,6 +483,9 @@ public class ParserRun {
 		else if(tokens.get(currPos).getCode()==16||isIdentifier()||isNum()||isBoolean()||tokens.get(currPos).getCode()==-5||tokens.get(currPos).getCode()==-6){
 			logic2();
 		}
+		else if(tokens.get(currPos).getCode()==18) {
+			arrayAss();
+		}
 		else {
 			throw new Exception("Line:"+tokens.get(currPos).getLine()
 					+ " Syntax Error: Invalid logic expression!") ;
@@ -438,7 +498,7 @@ public class ParserRun {
 	}
 	//21
 	public void logic2sub() throws Exception{
-		if(tokens.get(currPos).getCode()==22) {
+		if(tokens.get(currPos).getCode()==22||tokens.get(currPos).getCode()==17) {
 			return;
 		}
 		else if(tokens.get(currPos).getCode()==32||tokens.get(currPos).getCode()==31){
@@ -459,7 +519,7 @@ public class ParserRun {
 	}
 	//23
 	public void logic3sub()throws Exception{
-		if(tokens.get(currPos).getCode()==22||tokens.get(currPos).getCode()==31||tokens.get(currPos).getCode()==32||tokens.get(currPos).getCode()==33) {
+		if(tokens.get(currPos).getCode()==22||tokens.get(currPos).getCode()==31||tokens.get(currPos).getCode()==32||tokens.get(currPos).getCode()==17) {
 			return;
 		}
 		else if(tokens.get(currPos).getCode()==31){
@@ -485,7 +545,7 @@ public class ParserRun {
 			System.out.print(tokens.get(currPos).getContent()+" ");
 			currPos++;
 		}
-		else if((tokens.get(currPos).getCode()==16||isIdentifier()||isNum())&&(tokens.get(currPos+1).getCode()==17||tokens.get(currPos+1).getCode()==22)) {
+		else if((tokens.get(currPos).getCode()==16||isIdentifier()||isNum())&&(tokens.get(currPos+1).getCode()==17||tokens.get(currPos+1).getCode()==19||tokens.get(currPos+1).getCode()==22||tokens.get(currPos+1).getCode()==23)) {
 			calExpr();
 		}
 		else if(tokens.get(currPos).getCode()==16||isIdentifier()||isNum()) {
@@ -493,9 +553,13 @@ public class ParserRun {
 			relationOp();
 			calExpr();
 		}
+		else if(tokens.get(currPos).getCode()==19) {
+			return;
+		}
 		else {
 			throw new Exception("Line:"+tokens.get(currPos).getLine()
-					+ " Syntax Error: Invalid logic expression!") ;
+					+ " Syntax Error: Invali"
+					+ "d logic expression!") ;
 		}
 	}
 	//25
@@ -506,7 +570,7 @@ public class ParserRun {
 		}
 		else {
 			throw new Exception("Line:"+tokens.get(currPos).getLine()
-					+ " Syntax Error: Invalid relagtion operation!") ;
+					+ " Syntax Error: Invalid relation operation!") ;
 		}
 	}
 	//26
@@ -516,7 +580,7 @@ public class ParserRun {
 	}
 	//27
 	public void subCalExpr() throws Exception{
-		if(isRelation()||tokens.get(currPos).getCode()==17||tokens.get(currPos).getCode()==22) {
+		if(isRelation()||tokens.get(currPos).getCode()==17||tokens.get(currPos).getCode()==22||tokens.get(currPos).getCode()==23||tokens.get(currPos).getCode()==19) {
 			return;
 		}
 		else if(tokens.get(currPos).getCode()==34||tokens.get(currPos).getCode()==40) {
@@ -538,7 +602,7 @@ public class ParserRun {
 	//29
 	public void subTerm()throws Exception{
 		if(tokens.get(currPos).getCode()==34||tokens.get(currPos).getCode()==40||
-				isRelation()||tokens.get(currPos).getCode()==17||tokens.get(currPos).getCode()==22) {
+				isRelation()||tokens.get(currPos).getCode()==17||tokens.get(currPos).getCode()==22||tokens.get(currPos).getCode()==23||tokens.get(currPos).getCode()==19) {
 			return;
 		}
 		else if(tokens.get(currPos).getCode()==35||tokens.get(currPos).getCode()==36||tokens.get(currPos).getCode()==37) {
@@ -703,7 +767,10 @@ public class ParserRun {
 				currPos++;
 				logic1();
 				if(tokens.get(currPos).getCode()==17) {
+					System.out.print(tokens.get(currPos).getContent()+" ");
+					currPos++;
 					compClaiming();
+					System.out.println();
 					elseExpr();
 				}
 				else {
@@ -726,6 +793,7 @@ public class ParserRun {
 			System.out.print(tokens.get(currPos).getContent()+" ");
 			currPos++;
 			compClaiming();
+			System.out.println();
 		}
 	}
 	//38
@@ -849,5 +917,42 @@ public class ParserRun {
 	public void charExpr() {
 		System.out.print(tokens.get(currPos).getContent()+" ");
 		currPos++;
+	}
+	//44
+	public void arrayAss()throws Exception{
+		System.out.print(tokens.get(currPos).getContent()+" ");
+		currPos++;
+		simpleExpr();
+		subSimpleExpr();
+		if(tokens.get(currPos).getCode()==19) {
+			System.out.print(tokens.get(currPos).getContent()+" ");
+			currPos++;
+		}
+		else {
+			throw new Exception("Line:"+tokens.get(currPos).getLine()
+					+ " Missing \"}\"!") ;
+		}
+	}
+	public void subSimpleExpr()throws Exception{
+		if(tokens.get(currPos).getCode()==23) {
+			System.out.print(tokens.get(currPos).getContent()+" ");
+			currPos++;
+			simpleExpr();
+			subSimpleExpr();
+			if(tokens.get(currPos).getCode()==19) {
+				return;
+			}
+			else {
+				throw new Exception("Line:"+tokens.get(currPos).getLine()
+						+ "Missing \"}\" ") ;
+			}
+		}
+		else if(tokens.get(currPos).getCode()==19){
+			return;
+		}
+		else {
+			throw new Exception("Line:"+tokens.get(currPos).getLine()
+					+ "Invalid expression!") ;
+		}
 	}
 }

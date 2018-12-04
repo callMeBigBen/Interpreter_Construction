@@ -1,3 +1,4 @@
+string strings[3] = {"abc","bcd","cde"};
 int a = 1;
 double b = 2.0;
 boolean c = true;
@@ -8,4 +9,21 @@ boolean test2 = false||true;
 boolean test3 = !false;
 a = -2;
 print(a);
-int m = -2
+int ints[4] = {1,2,3};
+int main(int a){
+	if(a>=0){
+		return 1;
+	}
+	else{
+		return 0;
+	}
+}
+
+double loop2(int c){
+	int c = 5;
+	while(c>0){
+		if(c>2){
+			return;
+		}
+	}
+}
