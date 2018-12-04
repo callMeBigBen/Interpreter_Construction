@@ -370,7 +370,7 @@ public class run {
 			}else if(ch=='<'&&sourceCode.charAt(currPosition+1)!='='){
 				token.append("<");
 				String tmpstr = token.toString();
-				movement+=2;
+				movement++;
 				
 				Token tokenObj = new Token();
 				tokenObj.put(tmpstr,lineNum);
