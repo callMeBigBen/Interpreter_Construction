@@ -11,7 +11,7 @@ a = -2;
 print(a);
 int ints[4] = {1,2,3};
 int main(int a){
-	if(a>=0){
+	if(a<=0){
 		return 1;
 	}
 	else{
@@ -22,7 +22,7 @@ int main(int a){
 double loop2(int c){
 	int c = 5;
 	while(c>0){
-		if(c>2){
+		if(c<2){
 			return;
 		}
 	}
