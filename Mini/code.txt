@@ -1,5 +1,4 @@
-string strings[3] = {"abc","bcd","cde"};
-int a = 1;
+int a = a-1;
 double b = 2.0;
 boolean c = true;
 char d = 'g';
@@ -18,12 +17,12 @@ int main(int a){
 		return 0;
 	}
 }
-
-double loop2(int c){
-	int c = 5;
+int loop2(int c){
 	while(c>0){
+		c=c+1;
 		if(c<2){
 			return;
 		}
 	}
 }
+string strings[3] = {"abc","bcd","cde"};

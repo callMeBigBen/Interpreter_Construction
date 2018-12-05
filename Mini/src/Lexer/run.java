@@ -277,7 +277,7 @@ public class run {
 				System.out.println("Line:"+lineNum+"At"+currPosition+"  Syntax Error: '-' can not be the head of the line!");
 			}
 			//ʶ��-��Ϊ����
-			else if(ch=='-'&&(tokens.get(tokens.size()-1).code==0)){
+			else if(ch=='-'&&(tokens.get(tokens.size()-1).code==-1||tokens.get(tokens.size()-1).code==-2||tokens.get(tokens.size()-1).code==-4)){
 				token.append(ch);		
 				String tmpstr = token.toString();
 				movement++;

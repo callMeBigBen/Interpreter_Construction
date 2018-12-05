@@ -694,7 +694,10 @@ public class ParserRun {
 			System.out.print(tokens.get(currPos).getContent()+" ");
 			currPos++;
 		}
-		else if((tokens.get(currPos).getCode()==16||isIdentifier()||isNum())&&(tokens.get(currPos+1).getCode()==17||tokens.get(currPos+1).getCode()==19||tokens.get(currPos+1).getCode()==22||tokens.get(currPos+1).getCode()==23)) {
+		else if((tokens.get(currPos).getCode()==16||isIdentifier()||isNum())&&(tokens.get(currPos+1).getCode()==17||tokens.get(currPos+1).getCode()==19||tokens.get(currPos+1).getCode()==22||tokens.get(currPos+1).getCode()==23
+				||tokens.get(currPos+1).getCode()==40||tokens.get(currPos+1).getCode()==34||
+				tokens.get(currPos+1).getCode()==35||tokens.get(currPos+1).getCode()==36||
+				tokens.get(currPos+1).getCode()==37)) {
 			dotFormat+="<simpleExpr-"+curNodeNum+">-><calExpr-"+getNext()+">;";
 			calExpr();
 		}
@@ -850,7 +853,8 @@ public class ParserRun {
 		 if(tokens.get(currPos).getCode()==22||isRelation()||tokens.get(currPos).getCode()==17||
 				 tokens.get(currPos).getCode()==31||tokens.get(currPos).getCode()==32||tokens.get(currPos).getCode()==34
 				 ||tokens.get(currPos).getCode()==35||tokens.get(currPos).getCode()==36
-				 ||tokens.get(currPos).getCode()==37||tokens.get(currPos).getCode()==24) {
+				 ||tokens.get(currPos).getCode()==37||tokens.get(currPos).getCode()==24
+				 ||tokens.get(currPos).getCode()==40||tokens.get(currPos).getCode()==41){
 			 return;
 		 }
 		 else if(tokens.get(currPos).getCode()==16) {
