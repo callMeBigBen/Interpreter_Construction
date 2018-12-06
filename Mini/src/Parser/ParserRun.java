@@ -85,6 +85,8 @@ public class ParserRun {
 		int curNodeNum = nodeNum-1;
 		if(tokens.get(currPos).getCode()==-8) {
 			dotFormat+="<claimingList2-"+curNodeNum+">-><end-"+getNext()+">;";
+			System.out.println();
+			System.out.println();
 			System.out.println("This is the end of parser");
 			System.out.println("*********************************************");
 			System.out.println("Below is the AST");
@@ -104,8 +106,8 @@ public class ParserRun {
 			claimingList2();
 		}
 		else if(isIdentifier()||tokens.get(currPos).getCode()==-7) {
-			dotFormat+="<claimingList2-"+curNodeNum+">-><call-"+getNext()+">;";
-			call();
+			dotFormat+="<claimingList2-"+curNodeNum+">-><claiming-"+getNext()+">;";
+			claiming();
 			dotFormat+="<claimingList2-"+curNodeNum+">-><claimingList2-"+getNext()+">;";
 			claimingList2();
 		}
@@ -149,6 +151,28 @@ public class ParserRun {
 //		}
 		else if(isIdentifier()) {
 			call();
+			if(tokens.get(currPos).getCode()==22) {
+				dotFormat+="<claiming-"+curNodeNum+">-><"+tokens.get(currPos).getContent()+"-"+getNext()+">;";
+				System.out.print(tokens.get(currPos).getContent()+" ");
+				currPos++;
+			}
+			else {
+				throw new Exception("Line:"+tokens.get(currPos).getLine()
+						+ "Missing \";\"!");
+			}
+		}
+		else if(tokens.get(currPos).getCode()==-7) {
+			dotFormat+="<claiming-"+curNodeNum+">-><printFunc-"+getNext()+">;";
+			printFunc();
+			if(tokens.get(currPos).getCode()==22) {
+				dotFormat+="<claiming-"+curNodeNum+">-><"+tokens.get(currPos).getContent()+"-"+getNext()+">;";
+				System.out.print(tokens.get(currPos).getContent()+" ");
+				currPos++;
+			}
+			else {
+				throw new Exception("Line:"+tokens.get(currPos).getLine()
+						+ "Missing \";\"!");
+			}
 		}
 		else {
 			throw new Exception("Line:"+tokens.get(currPos).getLine()
@@ -697,7 +721,7 @@ public class ParserRun {
 		else if((tokens.get(currPos).getCode()==16||isIdentifier()||isNum())&&(tokens.get(currPos+1).getCode()==17||tokens.get(currPos+1).getCode()==19||tokens.get(currPos+1).getCode()==22||tokens.get(currPos+1).getCode()==23
 				||tokens.get(currPos+1).getCode()==40||tokens.get(currPos+1).getCode()==34||
 				tokens.get(currPos+1).getCode()==35||tokens.get(currPos+1).getCode()==36||
-				tokens.get(currPos+1).getCode()==37)) {
+				tokens.get(currPos+1).getCode()==37||tokens.get(currPos+1).getCode()==16)) {
 			dotFormat+="<simpleExpr-"+curNodeNum+">-><calExpr-"+getNext()+">;";
 			calExpr();
 		}
@@ -818,9 +842,13 @@ public class ParserRun {
 						+ " Syntax Error: Missing \")\"!") ;
 			}
 		}
-		else if(isIdentifier()) {
+		else if(isIdentifier()&&tokens.get(currPos+1).getCode()!=16) {
 			dotFormat+="<factor-"+curNodeNum+">-><var-"+getNext()+">;";
 			var();
+		}
+		else if(isIdentifier()) {
+			dotFormat+="<factor-"+curNodeNum+">-><call-"+getNext()+">;";
+			call();
 		}
 		else if(isNum()) {		
 			dotFormat+="<factor-"+curNodeNum+">-><calExpr-"+getNext()+">;";
@@ -1110,16 +1138,16 @@ public class ParserRun {
 						dotFormat += "<printFunc-" + curNodeNum + ">-><" + tokens.get(currPos).getContent() + "-" + getNext() + ">;";
 						System.out.print(tokens.get(currPos).getContent()+" ");
 						currPos++;
-						if(tokens.get(currPos).getCode()==22) {
-							dotFormat += "<printFunc-" + curNodeNum + ">-><" + tokens.get(currPos).getContent() + "-" + getNext() + ">;";
-							System.out.print(tokens.get(currPos).getContent()+" ");
-							System.out.println();
-							currPos++;
-						}
-						else {
-							throw new Exception("Line:"+tokens.get(currPos).getLine()
-									+ " Missing \";\" !") ;
-						}
+//						if(tokens.get(currPos).getCode()==22) {
+//							dotFormat += "<printFunc-" + curNodeNum + ">-><" + tokens.get(currPos).getContent() + "-" + getNext() + ">;";
+//							System.out.print(tokens.get(currPos).getContent()+" ");
+//							System.out.println();
+//							currPos++;
+//						}
+//						else {
+//							throw new Exception("Line:"+tokens.get(currPos).getLine()
+//									+ " Missing \";\" !") ;
+//						}
 					}
 					else {
 						throw new Exception("Line:"+tokens.get(currPos).getLine()

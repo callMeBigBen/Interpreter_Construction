@@ -19,10 +19,11 @@ return 0;
 }
 int loop2(int c){
 while(c>0){
-c=c+1;
+c=main(g);
 if(c<2){
 return;
 }
 }
 }
 string strings[3] = {"abc","bcd","cde"};
+main(a);
