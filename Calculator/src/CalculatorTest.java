@@ -7,6 +7,7 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.JButton;
 import java.awt.event.ActionListener;
+import java.rmi.NotBoundException;
 import java.awt.event.ActionEvent;
 
 public class CalculatorTest {
@@ -56,17 +57,20 @@ public class CalculatorTest {
 		JButton btnCalculate = new JButton("Calculate");
 		btnCalculate.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-					String str = input.getText();
+					String str = input.getText().trim();
 					try{
 						test.read(str);
 						double i =0;
 						i = test.calculate(test.insertBlanks(str));//调用
+						LinkBTree root = test.createBTree(test.NBL);
+						test.printTree(root);
+						int dept = root.dept();
 
-						output.setText("结果："+Double.toString(i)+"\n逆波兰式为:"+test.NBL);
+						output.setText("结果："+Double.toString(i)+"\n逆波兰式为:"+test.NBL+"树层数为"+dept);
 					}
 					catch(Exception e){
 						output.setText("Unknown Expression!");
-						output.setText(e.getMessage());
+						//output.setText(e.getMessage());
 					}
 					
 			}

@@ -3,12 +3,14 @@ package test;
 import java.util.regex.*;
 import java.util.*;
 import java.io.*;
+import java.sql.Struct;
 
 public class Calculator {
 	Map<String,Double> map;//映射表
 	String key;
-	String NBL="";
-	
+	String NBL="";//逆波兰式
+	Stack<LinkBTree> treeNodes = new Stack<LinkBTree>();//二叉树生成栈
+	LinkedList<BTree> queue = new LinkedList<BTree>();//树遍历队列
 	public Calculator(){
 		map = new HashMap<String,Double>();
 	}
@@ -53,7 +55,6 @@ public class Calculator {
 		}
 		
 	}
-	
 	
 
 	//insert blank into the string 
@@ -174,8 +175,7 @@ public class Calculator {
         
         double value = operands.peek().value;
         NBL=operands.peek().expr;
-        //String regex = "(.{1})";
-        //NBL = NBL.replaceAll (regex, "$1 ");
+        
         //返回逆波兰式
         System.out.println("逆波兰式："+NBL);
         
@@ -194,7 +194,7 @@ public class Calculator {
     	return value;
     }
     
-  //执行一次运算,type表示不同的位置的运算
+    //执行一次运算,type表示不同的位置的运算
     public void processAnOperator(Stack<Node> operandStack, Stack<Character> operatorStack){
         char op = operatorStack.pop();  //操作符
         Node node1= operandStack.pop();
@@ -212,13 +212,13 @@ public class Calculator {
         else if (op == '-'){
         	Node newNode = new Node();
         	newNode.setExpr(node2.expr+"_"+node1.expr+"_"+op);
-        	newNode.setValue(op1-op2);
+        	newNode.setValue(op2-op1);
         	operandStack.push(newNode);
         }   //注意方向op2-op1
         else if (op == '/'){
         	Node newNode = new Node();
         	newNode.setExpr(node2.expr+"_"+node1.expr+"_"+op);
-        	newNode.setValue(op1/op2);
+        	newNode.setValue(op2/op1);
         	operandStack.push(newNode);
         }
         else if (op == '+'){
@@ -229,4 +229,91 @@ public class Calculator {
         }
         
     }
+
+	//根据逆波兰式生成二叉树,返回根节点
+	public LinkBTree createBTree(String nbl){
+		String[] tmpNodes = nbl.split("_");
+		for(String s:tmpNodes){
+			if(s.equals("+")
+			||s.equals("-")
+			||s.equals("*")
+			||s.equals("/")){
+				LinkBTree node = new LinkBTree(" "+s+" ");
+				node.addRightTree(treeNodes.pop());	
+				node.addLeftTree(treeNodes.pop());
+				treeNodes.push(node);
+			}
+			else{
+				LinkBTree node = new LinkBTree(s);
+				treeNodes.push(node);
+			}
+
+		}
+		return treeNodes.peek();
+	}
+	
+	//广度优先遍历一棵树，按缩进打印
+	public void printTree(LinkBTree root){
+		
+		int dept = root.dept();
+		int level= 1;
+		boolean lineOver = false;
+		int thisLevelCount=1;
+		int count=0;
+		int nextLevelCount=0;
+		String lineContent = "";
+		queue.add(root);
+		while(!queue.isEmpty()){
+			if(level==1){
+				int i =2<<(dept-level)-1;
+				lineContent=blanks(3*i);//初始位置
+			}
+			if(lineOver){
+				thisLevelCount=nextLevelCount;//换层后继承本层的节点数
+				nextLevelCount=0;
+				count=0;
+				lineOver = false;
+				int i=2<<(dept-level)-1;
+				lineContent=blanks(3*i);//初始位置
+			}
+			
+			//处理当前节点，添加当前层内容
+			BTree currNode = queue.removeFirst();
+			int path = 2<<(dept-level+1);
+			lineContent=lineContent
+					+currNode.getRootData()
+					+blanks(3*path);//步长
+			
+			//左子树入列
+			if(currNode.hasLeftTree()){
+				queue.addLast(currNode.getLeftChild());
+				nextLevelCount++;
+			}
+			
+			//右子树入列
+			if(currNode.hasRightTree()){
+				queue.addLast(currNode.getRightChild());
+				nextLevelCount++;
+			}
+			
+			//当前层处理节点+1
+			count++;
+			
+			//当前层遍历完输出层内容
+			if(thisLevelCount==count){
+				lineOver=true;
+				level++;
+				System.out.println(lineContent);
+			}
+		}
+			
+	}
+	//数空格
+	public String blanks(int count){
+		String s = "";
+		for(int i=0;i<count;i++){
+			s=s+" ";
+		}
+		return s;
+	}
 }
