@@ -9,6 +9,7 @@ public class Calculator {
 	Map<String,Double> map;//映射表
 	String key;
 	String NBL="";//逆波兰式
+	String treeStr = "";
 	Stack<LinkBTree> treeNodes = new Stack<LinkBTree>();//二叉树生成栈
 	LinkedList<BTree> queue = new LinkedList<BTree>();//树遍历队列
 	public Calculator(){
@@ -233,18 +234,20 @@ public class Calculator {
 	//根据逆波兰式生成二叉树,返回根节点
 	public LinkBTree createBTree(String nbl){
 		String[] tmpNodes = nbl.split("_");
+		int tag=0;
 		for(String s:tmpNodes){
+			tag++;
 			if(s.equals("+")
 			||s.equals("-")
 			||s.equals("*")
 			||s.equals("/")){
-				LinkBTree node = new LinkBTree(" "+s+" ");
+				LinkBTree node = new LinkBTree(s+"_"+tag);
 				node.addRightTree(treeNodes.pop());	
 				node.addLeftTree(treeNodes.pop());
 				treeNodes.push(node);
 			}
 			else{
-				LinkBTree node = new LinkBTree(s);
+				LinkBTree node = new LinkBTree(s+"_"+tag);
 				treeNodes.push(node);
 			}
 
@@ -254,7 +257,6 @@ public class Calculator {
 	
 	//广度优先遍历一棵树，按缩进打印
 	public void printTree(LinkBTree root){
-		
 		int dept = root.dept();
 		int level= 1;
 		boolean lineOver = false;
@@ -263,6 +265,7 @@ public class Calculator {
 		int nextLevelCount=0;
 		String lineContent = "";
 		queue.add(root);
+
 		while(!queue.isEmpty()){
 			if(level==1){
 				int i =2<<(dept-level)-1;
@@ -288,12 +291,14 @@ public class Calculator {
 			if(currNode.hasLeftTree()){
 				queue.addLast(currNode.getLeftChild());
 				nextLevelCount++;
+				treeStr+=(currNode.getRootData()+"->"+currNode.getLeftChild().getRootData()+";");
 			}
 			
 			//右子树入列
 			if(currNode.hasRightTree()){
 				queue.addLast(currNode.getRightChild());
 				nextLevelCount++;
+				treeStr+=(currNode.getRootData()+"->"+currNode.getRightChild().getRootData()+";");	
 			}
 			
 			//当前层处理节点+1

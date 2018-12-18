@@ -67,6 +67,7 @@ public class CalculatorTest {
 						int dept = root.dept();
 
 						output.setText("结果："+Double.toString(i)+"\n逆波兰式为:"+test.NBL+"树层数为"+dept);
+						System.out.print(test.treeStr);
 					}
 					catch(Exception e){
 						output.setText("Unknown Expression!");
