@@ -14,6 +14,10 @@ import java.util.HashMap;
 
 public class run {
 	
+	public run() {
+		
+	}
+	
 	//���屣����
 	static ArrayList<String> reserved_word = new ArrayList<String>();
 	//���������

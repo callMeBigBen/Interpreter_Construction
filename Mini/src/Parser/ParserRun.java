@@ -175,6 +175,7 @@ public class ParserRun {
 			if(tokens.get(currPos).getCode()==22) {
 				dotFormat+="<claiming-"+curNodeNum+">-><"+tokens.get(currPos).getContent()+"-"+getNext()+">;";
 				System.out.print(tokens.get(currPos).getContent()+" ");
+				System.out.println();
 				currPos++;
 			}
 			else {
@@ -188,6 +189,7 @@ public class ParserRun {
 			if(tokens.get(currPos).getCode()==22) {
 				dotFormat+="<claiming-"+curNodeNum+">-><"+tokens.get(currPos).getContent()+"-"+getNext()+">;";
 				System.out.print(tokens.get(currPos).getContent()+" ");
+				System.out.println();
 				currPos++;
 			}
 			else {

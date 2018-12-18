@@ -1,5 +1,3 @@
-package test;
-
 public class LinkBTree implements BTree{
 	private String data;  
     private BTree lChild;  

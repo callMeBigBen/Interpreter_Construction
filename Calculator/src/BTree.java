@@ -1,6 +1,3 @@
-package test;
-
-
 public interface BTree {
 	 /** 
      * 添加左子树 
