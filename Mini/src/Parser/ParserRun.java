@@ -1,6 +1,7 @@
 package Parser;
 import java.util.ArrayList;
 import java.io.File;
+import java.io.FileWriter;
 import java.util.*;
 import Lexer.*;
 public class ParserRun {
@@ -10,6 +11,8 @@ public class ParserRun {
 	//code for AST generation
 	static int nodeNum = 0;
 	static String dotFormat = "";
+	static int tokenSize = 0;
+	static ArrayList<Exception> excepList = new ArrayList<>();
 	public static void createDotGraph(String dotFormat,String fileName)
 	{
 	    GraphViz gv=new GraphViz();
@@ -21,6 +24,16 @@ public class ParserRun {
 	    gv.decreaseDpi();
 	    File out = new File(fileName+"."+ type); 
 	    gv.writeGraphToFile( gv.getGraph( gv.getDotSource(), type ), out );
+	}
+	
+	//find the index of next comma
+	public static void gotoNextSemi() {
+		int type = -100;
+		while(type!=22&&currPos<tokenSize-1) {
+			currPos++;
+			type = tokens.get(currPos).getCode();
+		}
+		currPos++;
 	}
 	
 	//iterative subPrograms
@@ -35,6 +48,7 @@ public class ParserRun {
 		EOF.setCode(-8);
 		EOF.setLine(line);
 		tokens.add(EOF);
+		tokenSize = tokens.size();
 		try {
 			program();
 		} catch (Exception e) {
@@ -91,6 +105,12 @@ public class ParserRun {
 			System.out.println("*********************************************");
 			System.out.println("Below is the AST");
 			//dotFormat = dotFormat.substring(0,dotFormat.indexOf(";", 200)+1);
+			//将树保存起来，作为语义分析的输入
+			FileWriter writer = new FileWriter("tree.txt");
+			writer.write(dotFormat);
+			writer.flush();
+			writer.close();	
+			//画树
 			createDotGraph(dotFormat, "DotGraph");
 		}
 		else if(isType()) {
@@ -150,6 +170,7 @@ public class ParserRun {
 //			}
 //		}
 		else if(isIdentifier()) {
+			dotFormat+="<claiming-"+curNodeNum+">-><call-"+getNext()+">;";
 			call();
 			if(tokens.get(currPos).getCode()==22) {
 				dotFormat+="<claiming-"+curNodeNum+">-><"+tokens.get(currPos).getContent()+"-"+getNext()+">;";
@@ -820,7 +841,7 @@ public class ParserRun {
 		}
 		else {
 			throw new Exception("Line:"+tokens.get(currPos).getLine()
-					+ " Syntax Error: Invalid expression!") ;
+					+ " Syntax Error: Missing \";\"!") ;
 		}
 	}
 	//30 

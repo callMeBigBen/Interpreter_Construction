@@ -1,5 +1,3 @@
-package test;
-
 public class Node {
 	String expr;
 	double value;	
