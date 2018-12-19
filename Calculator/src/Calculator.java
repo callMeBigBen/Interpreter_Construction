@@ -9,7 +9,7 @@ public class Calculator {
 	Map<String,Double> map;//映射表
 	String key;
 	String NBL="";//逆波兰式
-	String treeStr = "";
+	String treeStr = "";//the expression
 	Stack<LinkBTree> treeNodes = new Stack<LinkBTree>();//二叉树生成栈
 	LinkedList<BTree> queue = new LinkedList<BTree>();//树遍历队列
 	public Calculator(){
