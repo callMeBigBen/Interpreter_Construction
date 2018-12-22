@@ -29,10 +29,19 @@ public class run {
 	static ArrayList<Token> tokens = new ArrayList<Token>();
 	//LineNum
 	static int lineNum = 0;
-	//���ֵ
+	//���
+	public static boolean isError=false;
+	public static String error = "";
+	
+	public ArrayList<Token> getTokens(){
+		return tokens;
+	}
 	public static void fill_list(){
 		//character:-1
-		//number:-2
+		//double number:-2
+		//integer number:-3
+		//char:-4
+		//string:-5
 		//
 		reserved_word.add("boolean"); //1 
 		reserved_word.add("char");	   //2
@@ -79,7 +88,7 @@ public class run {
 	}
 	
 	
-	//�����Ƿ�Ϊ������,���ҷ��ض�Ӧ�������
+	//查找保留字
 	public static boolean isReserved(String str){
 		for(String rsvdwd:reserved_word){
 			if(rsvdwd.equals(str)){
@@ -89,7 +98,7 @@ public class run {
 		return false;//���Ǳ����֣�����F
 	}
 	
-	//�ж��Ƿ�Ϊ��ĸ
+	//识别字母
 	public static boolean isLetter(char letter){
 		if(letter>='a'&&letter<='z' ||letter>='A'&&letter<='Z' )
 			return true;
@@ -97,7 +106,7 @@ public class run {
 			return false;
 	}
 	
-	//�ж��Ƿ�Ϊ����
+	//识别数字
 	public static boolean isNumber(char letter){
 		if(letter>='0'&&letter<='9')
 			return true;
@@ -105,13 +114,13 @@ public class run {
 			return false;
 	}
 	
-	//Ԥ����
+	//预处理
 	public static String preProcess(String sourceCode){
 		int len = sourceCode.length();
 		StringBuffer newCode = new StringBuffer();
 		
 		for(int i=0;i<len;i++){
-			//��������ע��
+			//消除单行注释
 			if(sourceCode.charAt(i)=='/'&&sourceCode.charAt(i+1)=='/'){
 				i+=2;
 				while(sourceCode.charAt(i)!='\n'){
@@ -119,37 +128,37 @@ public class run {
 				}
 				//lineNum++;
 			}
-			//��������ע��
+			//消除多行注释
 			if((sourceCode.charAt(i)=='/'&&sourceCode.charAt(i+1)=='*')){
 				i+=2;
 				while(!(sourceCode.charAt(i)=='*'&&sourceCode.charAt(i+1)=='/')){
 					if(sourceCode.charAt(i)=='\n'){
 						lineNum++;
 					}
-					i++;//����ɨ��
+					i++;
 					if (i >= len)
 					{
-					System.out.println("ע�ͳ���û���ҵ� */���������������\n");
-					System.exit(0);
+					error+=("缺少多行注释结尾符号\n");
+					isError = true;
 					}
 				}
 				i+=2;
 			}
-			//�����ռ�
+			//识别其他符号
 			if(sourceCode.charAt(i)!='\t' 
 			   ){
 				newCode.append(sourceCode.charAt(i));
 			}
 		}
 		
-		//Դ����ת��
+		//代码转换
 		return newCode.toString();	
 	}
 	
 	
 	/*
-	 * �ʷ����ຯ�����ֳ�����token���õ���Ӧ�����Ͳ��ұ���
-	 * ���ͣ�1.������; 2.��ʶ��; 3.����;4.����,5.�ַ���,6.�ַ�
+	 * 扫描
+	 * 多种类型分支识别
 	 */
 	/**
 	 * @param sourceCode
@@ -158,30 +167,30 @@ public class run {
 	 */
 	public static int scanner(String sourceCode,int currPosition){
 		//int tag = -1;
-		int movement = 0;//���ڷ��ص��ƶ���������ȡtoken֮��Ҫ�ı��ȡλ�ã���������C��ָ��
-		int len = sourceCode.length();
-		StringBuffer token = new StringBuffer();
-		char ch = sourceCode.charAt(currPosition);
-		
-		//���˿ո�
-		while(ch==' '){
-			if(currPosition<len-1){
-				currPosition++;
-				ch = sourceCode.charAt(currPosition);
-				movement++;
-			}
-			else{
-				movement++;
-				break;
-			}
-			
-		}
-		
-		//��ĸ��ͷ����ʼ��¼token
+				int movement = 0;//位移，相当于指针移动的功能
+				int len = sourceCode.length();
+				StringBuffer token = new StringBuffer();
+				char ch = sourceCode.charAt(currPosition);
+				
+				//跳过空格
+				while(ch==' '){
+					if(currPosition<len-1){
+						currPosition++;
+						ch = sourceCode.charAt(currPosition);
+						movement++;
+					}
+					else{
+						movement++;//末尾空格
+						break;
+					}
+					
+				}
+				
+				//字母开头
 		if(isLetter(ch)&&currPosition<len-1){
 			token.append(sourceCode.charAt(currPosition));
 			currPosition++;
-			//���������ֻ�����ĸ��������¼token
+			//后续字母
 			while((isLetter(sourceCode.charAt(currPosition))
 					||isNumber(sourceCode.charAt(currPosition)))
 					&&currPosition<len-1){
@@ -192,14 +201,14 @@ public class run {
 			String tmpstr=token.toString();		
 			movement+=tmpstr.length();
 			
-			//�鱣���ֱ�,�޸��ַ���
+			//加入token
 			Token tokenObj = new Token();
 			tokenObj.put(tmpstr,lineNum);
 			tokenObj.confirmCode();
 			tokens.add(tokenObj);
 			
 		}
-		//���ֿ�ͷ
+		//数字开头
 		else if(isNumber(ch)&&currPosition<len-1){
 			token.append(sourceCode.charAt(currPosition));
 			currPosition++;
@@ -214,14 +223,14 @@ public class run {
 					doted=true;
 				}
 				else if(doted&&sourceCode.charAt(currPosition)=='.'){
-					System.out.println("Line:"+lineNum+" Error, more than one dot. At "+(currPosition+1));
-					System.exit(0);
+					error+=("Line:"+lineNum+" Error, more than one dot. At "+(currPosition+1));
+					isError = true;
 				}
 				currPosition++;
 			}
 			if(isLetter(sourceCode.charAt(currPosition))){
-				System.out.println("Error:Line:"+lineNum+" Number can't be followed by a letter!");
-				System.exit(0);
+				error+=("Error:Line:"+lineNum+" Number can't be followed by a letter!");
+				isError=true;
 			}
 			//token.append('\0');
 
@@ -239,7 +248,7 @@ public class run {
 				tokens.add(tokenObj);
 			}		
 		}
-		//�����ſ�ͷ
+		//单符号开头
 		else if(ch=='+'||ch=='*'||ch=='/'
 				||ch=='('||ch==')'||ch=='['||ch==']'||ch=='{'
 				||ch=='}'||ch=='%'||ch==','||ch==';'){
@@ -253,7 +262,7 @@ public class run {
 			tokens.add(tokenObj);
 			
 		}
-		//���ܵĸ��Ϸ��ſ�ͷ
+		//可能的双符号开头
 		else if((ch=='!'||ch=='>'||ch=='<'||ch=='&'||ch=='|'||ch=='='||ch=='-')
 				&&currPosition<len-1){
 			if(ch=='!'&&sourceCode.charAt(currPosition+1)=='='){
@@ -276,12 +285,16 @@ public class run {
 				tokenObj.confirmCode();
 				tokens.add(tokenObj);
 			}
-			//ʶ��-��Ϊ���ţ�������Ҫ��ֹtokensΪ�ճ���(��ΪҪ���tokens��ǰһ��Ԫ�أ�����û��Ԫ�أ�
+			//防止第一个符号是负号，因为后面检测了前一个token
 			else if(ch=='-'&&tokens.isEmpty()){
-				System.out.println("Line:"+lineNum+"At"+currPosition+"  Syntax Error: '-' can not be the head of the line!");
+				error+=("Line:"+lineNum+"At"+currPosition+"  Syntax Error: '-' can not be the head of the line!");
+				isError=true;
 			}
-			//ʶ��-��Ϊ����
-			else if(ch=='-'&&(tokens.get(tokens.size()-1).code==-1||tokens.get(tokens.size()-1).code==-2||tokens.get(tokens.size()-1).code==-4)){
+			//识别为减号
+			else if(ch=='-'&&(tokens.get(tokens.size()-1).code==-1
+								||tokens.get(tokens.size()-1).code==-2
+								||tokens.get(tokens.size()-1).code==-3
+								||tokens.get(tokens.size()-1).code==-4)){
 				token.append(ch);		
 				String tmpstr = token.toString();
 				movement++;
@@ -291,7 +304,7 @@ public class run {
 				tokenObj.confirmCode();
 				tokens.add(tokenObj);
 			}
-			//ʶ��-��Ϊ���ţ�ǰ���������Ż��߱Ƚϡ���ֵ����
+			//识别为负号
 			else if(ch=='-'&&(
 					tokens.get(tokens.size()-1).code==16
 					||tokens.get(tokens.size()-1).code==24
@@ -303,12 +316,12 @@ public class run {
 					||tokens.get(tokens.size()-1).code==30)){
 				token.append(sourceCode.charAt(currPosition));
 				currPosition++;
-				//ʶ��Ϊ����֮�󣬺���������Ǳ�ʶ�������ֻ������ţ�����
+				//负号后面是不匹配的符号
 				if((currPosition<len-1)
 						&&!isLetter(sourceCode.charAt(currPosition))
 						&&!isNumber(sourceCode.charAt(currPosition))){
-					System.out.println("Line:"+lineNum+" At "+currPosition+" Syntax Error:Unknown '-'");
-					System.exit(0);
+					error+=("Line:"+lineNum+" At "+currPosition+" Syntax Error:Unknown '-'");
+					isError=true;
 				}
 				
 				String tmpstr = token.toString();
@@ -319,10 +332,10 @@ public class run {
 				tokenObj.confirmCode();
 				tokens.add(tokenObj);
 			}
-			//ʶ��δ֪����
+			//连续负号
 			else if(ch=='-'){
-				System.out.println("Line:"+lineNum+" At "+currPosition+" unknown '-'");
-				System.exit(0);
+				error+=("Line:"+lineNum+" At "+currPosition+" unknown '-'");
+				isError=true;
 			}
 			else if(ch=='='&&sourceCode.charAt(currPosition+1)!='='){
 				token.append("=");
@@ -399,8 +412,13 @@ public class run {
 				tokenObj.confirmCode();
 				tokens.add(tokenObj);
 			}
+			else {
+				error+=("Error:Line: "+lineNum+" Error, unknown character. At "+(currPosition+1));
+	    		isError=true;
+	    		movement++;
+			}
 		}
-		//˫����
+		//双引号
 		else if(ch=='\"'&&currPosition<len-1){
 			token.append(sourceCode.charAt(currPosition));
 			currPosition++;
@@ -408,8 +426,8 @@ public class run {
 		    	token.append(sourceCode.charAt(currPosition));
 		    	currPosition++;
 		    	if(currPosition>=len-1){
-		    		System.out.println("Error:Line: "+lineNum+" There is only one '\"'");
-		    		System.exit(0);
+		    		error+=("Error:Line: "+lineNum+" There is only one '\"'");
+		    		isError=true;
 		    	}
 		    }
 		    token.append(sourceCode.charAt(currPosition));
@@ -421,22 +439,22 @@ public class run {
 			tokenObj.confirmCode();
 			tokens.add(tokenObj);		
 		}
-		//������
+		//单引号
 		else if(ch=='\''&&currPosition<len-1){
 			token.append(sourceCode.charAt(currPosition));
 			currPosition++;
 			int charLength = 1;
 			while(sourceCode.charAt(currPosition)!='\''){
 				if(charLength>1){
-				    System.out.println("Line:"+lineNum+" �ַ��������﷨����λ�ã�"+currPosition+":"+sourceCode.charAt(currPosition));
-				    //System.exit(0);
+				    error+=("Line:"+lineNum+" char is too long. At"+currPosition+":"+sourceCode.charAt(currPosition));
+				    isError=true;
 				}
 				token.append(sourceCode.charAt(currPosition));
 				charLength++;
 				currPosition++;
 				if(currPosition>=len-1){
-				    System.out.println("Error:Line: "+lineNum+" There is only one '\''");
-				    System.exit(0);
+				    error+=("Error:Line: "+lineNum+" There is only one '\''");
+				    isError=true;
 				}
 			}
 			token.append(sourceCode.charAt(currPosition));
@@ -453,9 +471,9 @@ public class run {
 			//do nothing
 		}
 		else{
-			//����ʶ���δ֪���ţ�����������
-			System.out.println("Line:"+lineNum+" Error, unknown character. At "+(currPosition+1));
-			System.exit(0);
+			//未知符号,如中文字符
+			error+=("Line:"+lineNum+" Error, unknown character. At "+(currPosition+1));
+			isError=true;
 		}
 		
 		return movement;
@@ -485,23 +503,33 @@ public class run {
         }  
     }
 	
-
-	public static void main(String[] args) {
-		fill_list();
-		//System.out.println(operator.get(0));
-		//��ȡ����
+	
+	//methods for GUI usage
+	public String getPreprocessedContent(String content) {
+		String inputStr = preProcess(content);
+		File file = new File("code2.txt");
 		try {
-			//�����ı�
-			//Ԥ��������ע��
-			String inputStr = preProcess(readToString("code.txt"));
-			File file = new File("code2.txt");
 			file.createNewFile();
 			FileWriter writer = new FileWriter(file);
 			writer.write(inputStr);
 			writer.flush();
 			writer.close();	
+		} catch (Exception e) {
+			// TODO: handle exception
+			return "oops! something went wrong when reading the file.";
+		}
+		return inputStr;
+	}
+	static String retStr="";
+	
+	public String runLexer() {
+		retStr = "";
+		tokens.clear();
+		lineNum=0;
+		isError=false;
+		error="";
+		try {
 			BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(new File("code2.txt"))));
-			
 			//ɨ��
 			String newSrc = reader.readLine();
 			
@@ -519,18 +547,30 @@ public class run {
 			reader.close();
 			
 			for(Token tk:tokens){
-				System.out.println("line:"+tk.line+",  "+tk.content+",  Code:"+tk.code);
+				retStr+="line:"+tk.line+",  "+tk.content+",  Code:"+tk.code+"\n";
 			}
-			System.out.println();
-			System.out.println();
-			System.out.println();
-			ParserRun obj = new ParserRun();
-			obj.start(tokens);
-			
+			retStr+="\n\n\n";
+			return retStr;
 		} catch (Exception e) {
-			e.printStackTrace();
+			// TODO: handle exception
+			return "oops! something went wrong when running lexer!";
 		}
 		
+	}
+
+
+	public static void main(String[] args) {
+//		run aRun = new run();
+//		aRun.getPreprocessedContent("int fun5 (int a)\r\n" + 
+//				"{ \r\n" + 
+//				"  if（a>0){\r\n" + 
+//				"      a = a + 1;\r\n" + 
+//				"  }\r\n" + 
+//				"  if(b==0){\r\n" + 
+//				";\r\n" + 
+//				"}\r\n" + 
+//				"}");
+//		System.out.println(aRun.runLexer());
 		
 	}
 

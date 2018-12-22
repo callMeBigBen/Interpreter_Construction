@@ -5,8 +5,8 @@ import java.io.File;
 public class TestGraph {
 	
 	public static void main(String[] args) {
-		String content = "A->B;B->C;B->D";
-		createDotGraph(content, "test");
+		String content = "A->B;B->C;B->D;";
+		createDotGraph(content, "test2");
 	}
 	public static void createDotGraph(String dotFormat,String fileName)
 	{

@@ -13,6 +13,11 @@ public class ParserRun {
 	static String dotFormat = "";
 	static int tokenSize = 0;
 	static ArrayList<Exception> excepList = new ArrayList<>();
+	String retStr = "";
+	
+	public String getRetStr() {
+		return retStr;
+	}
 	public static void createDotGraph(String dotFormat,String fileName)
 	{
 	    GraphViz gv=new GraphViz();
@@ -42,17 +47,23 @@ public class ParserRun {
 		return nodeNum-1;
 	}
 	public void start(ArrayList<Token> ts) {
+		retStr = "";
+		currPos=0;
+		nodeNum=0;
+		tokenSize=0;
 		tokens = ts;
+		dotFormat  ="";
 		Token EOF = new Token();
 		int line = tokens.get(tokens.size()-1).getLine();
 		EOF.setCode(-8);
 		EOF.setLine(line);
 		tokens.add(EOF);
 		tokenSize = tokens.size();
+
 		try {
 			program();
 		} catch (Exception e) {
-			System.out.println(e.getMessage());
+			retStr+=("\n"+e.getMessage());
 		}
 	}
 	
@@ -99,11 +110,11 @@ public class ParserRun {
 		int curNodeNum = nodeNum-1;
 		if(tokens.get(currPos).getCode()==-8) {
 			dotFormat+="<claimingList2-"+curNodeNum+">-><end-"+getNext()+">;";
-			System.out.println();
-			System.out.println();
-			System.out.println("This is the end of parser");
-			System.out.println("*********************************************");
-			System.out.println("Below is the AST");
+			retStr+="\n";
+			retStr+="\n";
+			retStr+=("This is the end of parser\n");
+			retStr+=("*********************************************\n");
+			retStr+=("Below is the AST\n");
 			//dotFormat = dotFormat.substring(0,dotFormat.indexOf(";", 200)+1);
 			//将树保存起来，作为语义分析的输入
 			FileWriter writer = new FileWriter("tree.txt");
@@ -148,18 +159,22 @@ public class ParserRun {
 			type();
 			if(isIdentifier()) {
 				dotFormat+="<claiming-"+curNodeNum+">-><"+tokens.get(currPos).getContent()+"-"+getNext()+">;";
-				System.out.print(tokens.get(currPos).getContent()+" ");
+				retStr+=(tokens.get(currPos).getContent()+" ");
 				currPos++;
 				dotFormat+="<claiming-"+curNodeNum+">-><subClaiming-"+getNext()+">;";
 				subClaiming();
 			}
+			else {
+				throw new Exception("Line:"+tokens.get(currPos).getLine()
+						+ " Missing identifier!\n");
+			}
 		}
 //		else if(isType()&&tokens.get(currPos+1).getCode()==20) {
 //			type();
-//			System.out.print(tokens.get(currPos).getContent()+" ");
+//			retStr+=(tokens.get(currPos).getContent()+" ");
 //			currPos++;
 //			if(isType()&&tokens.get(currPos+1).getCode()==21) {
-//				System.out.print(tokens.get(currPos).getContent()+" ");
+//				retStr+=(tokens.get(currPos).getContent()+" ");
 //				currPos++;
 //				isIdentifier();
 //				subClaiming();
@@ -174,8 +189,8 @@ public class ParserRun {
 			call();
 			if(tokens.get(currPos).getCode()==22) {
 				dotFormat+="<claiming-"+curNodeNum+">-><"+tokens.get(currPos).getContent()+"-"+getNext()+">;";
-				System.out.print(tokens.get(currPos).getContent()+" ");
-				System.out.println();
+				retStr+=(tokens.get(currPos).getContent()+" ");
+				retStr+="\n";
 				currPos++;
 			}
 			else {
@@ -188,8 +203,8 @@ public class ParserRun {
 			printFunc();
 			if(tokens.get(currPos).getCode()==22) {
 				dotFormat+="<claiming-"+curNodeNum+">-><"+tokens.get(currPos).getContent()+"-"+getNext()+">;";
-				System.out.print(tokens.get(currPos).getContent()+" ");
-				System.out.println();
+				retStr+=(tokens.get(currPos).getContent()+" ");
+				retStr+="\n";
 				currPos++;
 			}
 			else {
@@ -223,29 +238,29 @@ public class ParserRun {
 		int curNodeNum = nodeNum-1;
 		if(tokens.get(currPos).getCode()==22) {
 			dotFormat+="<subVarClaiming-"+curNodeNum+">-><"+tokens.get(currPos).getContent()+"-"+getNext()+">;";
-			System.out.print(tokens.get(currPos).getContent()+" ");
-			System.out.println();
+			retStr+=(tokens.get(currPos).getContent()+" ");
+			retStr+="\n";
 			currPos++;
 		}
 		else if(tokens.get(currPos).getCode()==20&&tokens.get(currPos+3).getCode()==24) {
 			dotFormat+="<subVarClaiming-"+curNodeNum+">-><"+tokens.get(currPos).getContent()+"-"+getNext()+">;";
-			System.out.print(tokens.get(currPos).getContent()+" ");
+			retStr+=(tokens.get(currPos).getContent()+" ");
 			currPos++;
 			dotFormat+="<subVarClaiming-"+curNodeNum+">-><posInt-"+getNext()+">;";
 			posInt();
 			if(tokens.get(currPos).getCode()==21) {
 				dotFormat+="<subVarClaiming-"+curNodeNum+">-><"+tokens.get(currPos).getContent()+"-"+getNext()+">;";
-				System.out.print(tokens.get(currPos).getContent()+" ");
+				retStr+=(tokens.get(currPos).getContent()+" ");
 				currPos++;
 				dotFormat+="<subVarClaiming-"+curNodeNum+">-><"+tokens.get(currPos).getContent()+"-"+getNext()+">;";
-				System.out.print(tokens.get(currPos).getContent()+" ");
+				retStr+=(tokens.get(currPos).getContent()+" ");
 				currPos++;
 				dotFormat+="<subVarClaiming-"+curNodeNum+">-><logic1-"+getNext()+">;";
 				logic1();
 				if(tokens.get(currPos).getCode()==22) {
 					dotFormat+="<subVarClaiming-"+curNodeNum+">-><"+tokens.get(currPos).getContent()+"-"+getNext()+">;";
-					System.out.print(tokens.get(currPos).getContent()+" ");
-					System.out.println();
+					retStr+=(tokens.get(currPos).getContent()+" ");
+					retStr+="\n";
 					currPos++;
 				}
 				else {
@@ -260,18 +275,18 @@ public class ParserRun {
 		}
 		else if(tokens.get(currPos).getCode()==20) {
 			dotFormat+="<subVarClaiming-"+curNodeNum+">-><"+tokens.get(currPos).getContent()+"-"+getNext()+">;";
-			System.out.print(tokens.get(currPos).getContent()+" ");
+			retStr+=(tokens.get(currPos).getContent()+" ");
 			currPos++;
 			dotFormat+="<subVarClaiming-"+curNodeNum+">-><posInt-"+getNext()+">;";
 			posInt();
 			if(tokens.get(currPos).getCode()==21) {
 				dotFormat+="<subVarClaiming-"+curNodeNum+">-><"+tokens.get(currPos).getContent()+"-"+getNext()+">;";
-				System.out.print(tokens.get(currPos).getContent()+" ");
+				retStr+=(tokens.get(currPos).getContent()+" ");
 				currPos++;
 				if(tokens.get(currPos).getCode()==22) {
 					dotFormat+="<subVarClaiming-"+curNodeNum+">-><"+tokens.get(currPos).getContent()+"-"+getNext()+">;";
-					System.out.print(tokens.get(currPos).getContent()+" ");
-					System.out.println();
+					retStr+=(tokens.get(currPos).getContent()+" ");
+					retStr+="\n";
 					currPos++;
 				}
 				else {
@@ -286,14 +301,14 @@ public class ParserRun {
 		}
 		else if(tokens.get(currPos).getCode()==24) {
 			dotFormat+="<subVarClaiming-"+curNodeNum+">-><"+tokens.get(currPos).getContent()+"-"+getNext()+">;";
-			System.out.print(tokens.get(currPos).getContent()+" ");
+			retStr+=(tokens.get(currPos).getContent()+" ");
 			currPos++;
 			dotFormat+="<subVarClaiming-"+curNodeNum+">-><logic1-"+getNext()+">;";
 			logic1();
 			if(tokens.get(currPos).getCode()==22) {
 				dotFormat+="<subVarClaiming-"+curNodeNum+">-><"+tokens.get(currPos).getContent()+"-"+getNext()+">;";
-				System.out.print(tokens.get(currPos).getContent()+" ");
-				System.out.println();
+				retStr+=(tokens.get(currPos).getContent()+" ");
+				retStr+="\n";
 				currPos++;
 			}
 			else {
@@ -311,7 +326,7 @@ public class ParserRun {
 		int curNodeNum = nodeNum-1;
 		if(tokens.get(currPos).getCode()==-3) {
 			dotFormat+="<posInt-"+curNodeNum+">-><"+tokens.get(currPos).getContent()+"-"+getNext()+">;";
-			System.out.print(tokens.get(currPos).getContent()+" ");
+			retStr+=(tokens.get(currPos).getContent()+" ");
 			currPos++;
 		}
 		else {
@@ -324,7 +339,7 @@ public class ParserRun {
 		int curNodeNum = nodeNum-1;
 		if(tokens.get(currPos).getCode()==-4) {
 			dotFormat+="<Int-"+curNodeNum+">-><"+tokens.get(currPos).getContent()+"-"+getNext()+">;";
-			System.out.print(tokens.get(currPos).getContent()+" ");
+			retStr+=(tokens.get(currPos).getContent()+" ");
 			currPos++;
 		}
 		else {
@@ -337,7 +352,7 @@ public class ParserRun {
 		int curNodeNum = nodeNum-1;
 		if(tokens.get(currPos).getCode()==-2) {
 			dotFormat+="<floatNum-"+curNodeNum+">-><"+tokens.get(currPos).getContent()+"-"+getNext()+">;";
-			System.out.print(tokens.get(currPos).getContent()+" ");
+			retStr+=(tokens.get(currPos).getContent()+" ");
 			currPos++;
 		}
 		else {
@@ -350,7 +365,7 @@ public class ParserRun {
 		int curNodeNum = nodeNum-1;
 		if(isType()) {
 			dotFormat+="<type-"+curNodeNum+">-><"+tokens.get(currPos).getContent()+"-"+getNext()+">;";
-			System.out.print(tokens.get(currPos).getContent()+" ");
+			retStr+=(tokens.get(currPos).getContent()+" ");
 			currPos++;
 		}
 		else {
@@ -362,17 +377,17 @@ public class ParserRun {
 	public void subFuncClaiming() throws Exception{
 		int curNodeNum = nodeNum-1;
 		dotFormat+="<subFuncClaiming-"+curNodeNum+">-><"+tokens.get(currPos).getContent()+"-"+getNext()+">;";
-		System.out.print(tokens.get(currPos).getContent()+" ");
+		retStr+=(tokens.get(currPos).getContent()+" ");
 		currPos++;
 		dotFormat+="<subFuncClaiming-"+curNodeNum+">-><paraList-"+getNext()+">;";
 		paraList();
 		if(tokens.get(currPos).getCode()==17) {
 			dotFormat+="<subFuncClaiming-"+curNodeNum+">-><"+tokens.get(currPos).getContent()+"-"+getNext()+">;";
-			System.out.print(tokens.get(currPos).getContent()+" ");
+			retStr+=(tokens.get(currPos).getContent()+" ");
 			currPos++;
 			dotFormat+="<subFuncClaiming-"+curNodeNum+">-><compClaiming-"+getNext()+">;";
 			compClaiming();
-			System.out.println();
+			retStr+="\n";
 		}
 		else {
 			throw new Exception("Line:"+tokens.get(currPos).getLine()
@@ -401,7 +416,7 @@ public class ParserRun {
 		int curNodeNum = nodeNum-1;
 		if(tokens.get(currPos).getCode()==23) {
 			dotFormat+="<paraList2-"+curNodeNum+">-><"+tokens.get(currPos).getContent()+"-"+getNext()+">;";
-			System.out.print(tokens.get(currPos).getContent()+" ");
+			retStr+=(tokens.get(currPos).getContent()+" ");
 			currPos++;
 			dotFormat+="<paraList2-"+curNodeNum+">-><param-"+getNext()+">;";
 			param();
@@ -423,15 +438,15 @@ public class ParserRun {
 		type();
 		if(isIdentifier()) {
 			dotFormat+="<param-"+curNodeNum+">-><"+tokens.get(currPos).getContent()+"-"+getNext()+">;";
-			System.out.print(tokens.get(currPos).getContent()+" ");
+			retStr+=(tokens.get(currPos).getContent()+" ");
 			currPos++;
 			if(tokens.get(currPos).getCode()==20) {
 				dotFormat+="<param-"+curNodeNum+">-><"+tokens.get(currPos).getContent()+"-"+getNext()+">;";
-				System.out.print(tokens.get(currPos).getContent()+" ");
+				retStr+=(tokens.get(currPos).getContent()+" ");
 				currPos++;
 				if(tokens.get(currPos).getCode()==21) {
 					dotFormat+="<param-"+curNodeNum+">-><"+tokens.get(currPos).getContent()+"-"+getNext()+">;";
-					System.out.print(tokens.get(currPos).getContent()+" ");
+					retStr+=(tokens.get(currPos).getContent()+" ");
 					currPos++;
 				}
 				else {
@@ -450,14 +465,14 @@ public class ParserRun {
 		int curNodeNum = nodeNum-1;
 		if(tokens.get(currPos).getCode()==18) {
 			dotFormat+="<funcCompClaiming-"+curNodeNum+">-><"+tokens.get(currPos).getContent()+"-"+getNext()+">;";
-			System.out.print(tokens.get(currPos).getContent()+" ");
+			retStr+=(tokens.get(currPos).getContent()+" ");
 			currPos++;
-			System.out.println();
+			retStr+="\n";
 			dotFormat+="<funcCompClaiming-"+curNodeNum+">-><funcMultiClaiming-"+getNext()+">;";
 			funcMultiClaiming();
 			if(tokens.get(currPos).getCode()==19) {
 				dotFormat+="<funcCompClaiming-"+curNodeNum+">-><"+tokens.get(currPos).getContent()+"-"+getNext()+">;";
-				System.out.print(tokens.get(currPos).getContent()+" ");
+				retStr+=(tokens.get(currPos).getContent()+" ");
 				currPos++;
 			}
 			else {
@@ -515,14 +530,14 @@ public class ParserRun {
 		int curNodeNum = nodeNum-1;
 		if(tokens.get(currPos).getCode()==18) {
 			dotFormat+="<compClaiming-"+curNodeNum+">-><"+tokens.get(currPos).getContent()+getNext()+">;";
-			System.out.print(tokens.get(currPos).getContent()+" ");
+			retStr+=(tokens.get(currPos).getContent()+" ");
 			currPos++;
-			System.out.println();
+			retStr+="\n";
 			dotFormat+="<compClaiming-"+curNodeNum+">-><multiClaiming-"+getNext()+">;";
 			multiClaiming();
 			if(tokens.get(currPos).getCode()==19) {
 				dotFormat+="<compClaiming-"+curNodeNum+">-><"+tokens.get(currPos).getContent()+getNext()+">;";
-				System.out.print(tokens.get(currPos).getContent()+" ");
+				retStr+=(tokens.get(currPos).getContent()+" ");
 				currPos++;
 			}
 			else {
@@ -605,8 +620,8 @@ public class ParserRun {
 		int curNodeNum = nodeNum-1;
 		if(tokens.get(currPos).getCode()==22) {
 			dotFormat+="<exprClaiming-"+curNodeNum+">-><"+tokens.get(currPos).getContent()+"-"+getNext()+">;";
-			System.out.print(tokens.get(currPos).getContent()+" ");
-			System.out.println();
+			retStr+=(tokens.get(currPos).getContent()+" ");
+			retStr+="\n";
 			currPos++;
 		}
 		else if(isIdentifier()) {
@@ -614,8 +629,8 @@ public class ParserRun {
 			expr();
 			if(tokens.get(currPos).getCode()==22) {
 				dotFormat+="<exprClaiming-"+curNodeNum+">-><"+tokens.get(currPos).getContent()+"-"+getNext()+">;";
-				System.out.print(tokens.get(currPos).getContent()+" ");
-				System.out.println();
+				retStr+=(tokens.get(currPos).getContent()+" ");
+				retStr+="\n";
 				currPos++;
 			}
 			else {
@@ -636,7 +651,7 @@ public class ParserRun {
 		var();
 		if(tokens.get(currPos).getCode()==24) {
 			dotFormat+="<expr-"+curNodeNum+">-><"+tokens.get(currPos).getContent()+"-"+getNext()+">;";
-			System.out.print(tokens.get(currPos).getContent()+" ");
+			retStr+=(tokens.get(currPos).getContent()+" ");
 			currPos++;
 			dotFormat+="<expr-"+curNodeNum+">-><logic1-"+getNext()+">;";
 			logic1();
@@ -651,7 +666,7 @@ public class ParserRun {
 		int curNodeNum = nodeNum-1;
 		if(tokens.get(currPos).getCode()==33) {
 			dotFormat+="<logic1-"+curNodeNum+">-><"+tokens.get(currPos).getContent()+"-"+getNext()+">;";
-			System.out.print(tokens.get(currPos).getContent()+" ");
+			retStr+=(tokens.get(currPos).getContent()+" ");
 			currPos++;
 			dotFormat+="<logic1-"+curNodeNum+">-><logic1-"+getNext()+">;";
 			logic1();
@@ -685,7 +700,7 @@ public class ParserRun {
 		}
 		else if(tokens.get(currPos).getCode()==32||tokens.get(currPos).getCode()==31){
 			dotFormat+="<logic2sub-"+curNodeNum+">-><"+tokens.get(currPos).getContent()+"-"+getNext()+">;";
-			System.out.print(tokens.get(currPos).getContent()+" ");
+			retStr+=(tokens.get(currPos).getContent()+" ");
 			currPos++;
 			dotFormat+="<logic2sub-"+curNodeNum+">-><logic3-"+getNext()+">;";
 			logic3();
@@ -713,7 +728,7 @@ public class ParserRun {
 		}
 		else if(tokens.get(currPos).getCode()==31){
 			dotFormat+="<logic3sub-"+curNodeNum+">-><"+tokens.get(currPos).getContent()+"-"+getNext()+">;";
-			System.out.print(tokens.get(currPos).getContent()+" ");
+			retStr+=(tokens.get(currPos).getContent()+" ");
 			currPos++;
 			dotFormat+="<logic3sub-"+curNodeNum+">-><simpleExpr-"+getNext()+">;";
 			simpleExpr();
@@ -738,7 +753,7 @@ public class ParserRun {
 		}
 		else if(isBoolean()) {
 			dotFormat+="<simpleExpr-"+curNodeNum+">-><"+tokens.get(currPos).getContent()+"-"+getNext()+">;";
-			System.out.print(tokens.get(currPos).getContent()+" ");
+			retStr+=(tokens.get(currPos).getContent()+" ");
 			currPos++;
 		}
 		else if((tokens.get(currPos).getCode()==16||isIdentifier()||isNum())&&(tokens.get(currPos+1).getCode()==17||tokens.get(currPos+1).getCode()==19||tokens.get(currPos+1).getCode()==22||tokens.get(currPos+1).getCode()==23
@@ -781,7 +796,7 @@ public class ParserRun {
 			else if(tokens.get(currPos).getCode()==29) {
 				dotFormat+="<relationOp-"+curNodeNum+">-><GreaterOrEqual-"+getNext()+">;";
 			}
-			System.out.print(tokens.get(currPos).getContent()+" ");
+			retStr+=(tokens.get(currPos).getContent()+" ");
 			currPos++;
 		}
 		else {
@@ -805,7 +820,7 @@ public class ParserRun {
 		}
 		else if(tokens.get(currPos).getCode()==34||tokens.get(currPos).getCode()==40) {
 			dotFormat+="<subCalExpr-"+curNodeNum+">-><"+tokens.get(currPos).getContent()+"-"+getNext()+">;";
-			System.out.print(tokens.get(currPos).getContent()+" ");
+			retStr+=(tokens.get(currPos).getContent()+" ");
 			currPos++;
 			dotFormat+="<subCalExpr-"+curNodeNum+">-><term-"+getNext()+">;";
 			term();
@@ -834,7 +849,7 @@ public class ParserRun {
 		}
 		else if(tokens.get(currPos).getCode()==35||tokens.get(currPos).getCode()==36||tokens.get(currPos).getCode()==37) {
 			dotFormat+="<subTerm-"+curNodeNum+">-><"+tokens.get(currPos).getContent()+"-"+getNext()+">;";
-			System.out.print(tokens.get(currPos).getContent()+" ");
+			retStr+=(tokens.get(currPos).getContent()+" ");
 			currPos++;
 			dotFormat+="<term-"+curNodeNum+">-><factor-"+getNext()+">;";
 			factor();
@@ -851,13 +866,13 @@ public class ParserRun {
 		int curNodeNum = nodeNum-1;
 		if(tokens.get(currPos).getCode()==16) {
 			dotFormat+="<factor-"+curNodeNum+">-><"+tokens.get(currPos).getContent()+"-"+getNext()+">;";
-			System.out.print(tokens.get(currPos).getContent()+" ");
+			retStr+=(tokens.get(currPos).getContent()+" ");
 			currPos++;
 			dotFormat+="<factor-"+curNodeNum+">-><calExpr-"+getNext()+">;";
 			calExpr();
 			if(tokens.get(currPos).getCode()==17) {
 				dotFormat+="<factor-"+curNodeNum+">-><"+tokens.get(currPos).getContent()+"-"+getNext()+">;";
-				System.out.print(tokens.get(currPos).getContent()+" ");
+				retStr+=(tokens.get(currPos).getContent()+" ");
 				currPos++;
 			}
 			else {
@@ -875,7 +890,7 @@ public class ParserRun {
 		}
 		else if(isNum()) {		
 			dotFormat+="<factor-"+curNodeNum+">-><calExpr-"+getNext()+">;";
-			System.out.print(tokens.get(currPos).getContent()+" ");
+			retStr+=(tokens.get(currPos).getContent()+" ");
 			currPos++;
 		}
 		else {
@@ -888,7 +903,7 @@ public class ParserRun {
 		int curNodeNum = nodeNum-1;
 		if(isIdentifier()) {
 			dotFormat+="<var-"+curNodeNum+">-><"+tokens.get(currPos).getContent()+"-"+getNext()+">;";
-			System.out.print(tokens.get(currPos).getContent()+" ");
+			retStr+=(tokens.get(currPos).getContent()+" ");
 			currPos++;
 			dotFormat+="<var-"+curNodeNum+">-><subVar-"+getNext()+">;";
 			subVar();
@@ -910,13 +925,13 @@ public class ParserRun {
 		 }
 		 else if(tokens.get(currPos).getCode()==16) {
 				dotFormat+="<subVar-"+curNodeNum+">-><"+tokens.get(currPos).getContent()+"-"+getNext()+">;";
-				System.out.print(tokens.get(currPos).getContent()+" ");
+				retStr+=(tokens.get(currPos).getContent()+" ");
 				currPos++;
 				dotFormat+="<subVar-"+curNodeNum+">-><posInt-"+getNext()+">;";
 				posInt();
 				if(tokens.get(currPos).getCode()==17) {
 					dotFormat+="<subVar-"+curNodeNum+">-><"+tokens.get(currPos).getContent()+"-"+getNext()+">;";
-					System.out.print(tokens.get(currPos).getContent()+" ");
+					retStr+=(tokens.get(currPos).getContent()+" ");
 					currPos++;
 				}
 				else {
@@ -927,13 +942,13 @@ public class ParserRun {
 		 }
 		 else if(tokens.get(currPos).getCode()==20) {
 			 dotFormat+="<subVar-"+curNodeNum+">-><"+tokens.get(currPos).getContent()+"-"+getNext()+">;";
-			 System.out.print(tokens.get(currPos).getContent()+" ");
+			 retStr+=(tokens.get(currPos).getContent()+" ");
 			 currPos++;
 			 dotFormat+="<subVar-"+curNodeNum+">-><arguList-"+getNext()+">;";
 			 arguList();
 			 if(tokens.get(currPos).getCode()==21) {
 				 dotFormat+="<subVar-"+curNodeNum+">-><"+tokens.get(currPos).getContent()+"-"+getNext()+">;";
-				 System.out.print(tokens.get(currPos).getContent()+" ");
+				 retStr+=(tokens.get(currPos).getContent()+" ");
 				 currPos++;
 			 }
 			 else {
@@ -951,17 +966,17 @@ public class ParserRun {
 		int curNodeNum = nodeNum - 1;
 		if (isIdentifier()) {
 			dotFormat += "<call-" + curNodeNum + ">-><" + tokens.get(currPos).getContent() + "-" + getNext() + ">;";
-			System.out.print(tokens.get(currPos).getContent() + " ");
+			retStr+=(tokens.get(currPos).getContent() + " ");
 			currPos++;
 			if (tokens.get(currPos).getCode() == 16) {
 				dotFormat += "<call-" + curNodeNum + ">-><" + tokens.get(currPos).getContent() + "-" + getNext() + ">;";
-				System.out.print(tokens.get(currPos).getContent() + " ");
+				retStr+=(tokens.get(currPos).getContent() + " ");
 				currPos++;
 				dotFormat+="<call-"+curNodeNum+">-><arguList-"+getNext()+">;";
 				arguList();
 				if (tokens.get(currPos).getCode() == 17) {
 					dotFormat += "<call-" + curNodeNum + ">-><" + tokens.get(currPos).getContent() + "-" + getNext() + ">;";
-					System.out.print(tokens.get(currPos).getContent() + " ");
+					retStr+=(tokens.get(currPos).getContent() + " ");
 					currPos++;
 				} else {
 					throw new Exception("Line:" + tokens.get(currPos).getLine() + " Missing \")\"!");
@@ -1002,7 +1017,7 @@ public class ParserRun {
 		}
 		else if(tokens.get(currPos).getCode()==23) {
 			dotFormat += "<subArguList-" + curNodeNum + ">-><" + tokens.get(currPos).getContent() + "-" + getNext() + ">;";
-			System.out.print(tokens.get(currPos).getContent()+" ");
+			retStr+=(tokens.get(currPos).getContent()+" ");
 			currPos++;
 			dotFormat+="<subArguList-"+curNodeNum+">-><calExpr-"+getNext()+">;";
 			calExpr();
@@ -1019,21 +1034,21 @@ public class ParserRun {
 		int curNodeNum = nodeNum - 1;
 		if(tokens.get(currPos).getCode()==8) {
 			dotFormat += "<ifExpr-" + curNodeNum + ">-><" + tokens.get(currPos).getContent() + "-" + getNext() + ">;";
-			System.out.print(tokens.get(currPos).getContent()+" ");
+			retStr+=(tokens.get(currPos).getContent()+" ");
 			currPos++;
 			if(tokens.get(currPos).getCode()==16) {
 				dotFormat += "<ifExpr-" + curNodeNum + ">-><" + tokens.get(currPos).getContent() + "-" + getNext() + ">;";
-				System.out.print(tokens.get(currPos).getContent()+" ");
+				retStr+=(tokens.get(currPos).getContent()+" ");
 				currPos++;
 				dotFormat += "<ifExpr-" + curNodeNum + ">-><logic1-" + getNext() + ">;";
 				logic1();
 				if(tokens.get(currPos).getCode()==17) {
 					dotFormat += "<ifExpr-" + curNodeNum + ">-><" + tokens.get(currPos).getContent() + "-" + getNext() + ">;";
-					System.out.print(tokens.get(currPos).getContent()+" ");
+					retStr+=(tokens.get(currPos).getContent()+" ");
 					currPos++;
 					dotFormat += "<ifExpr-" + curNodeNum + ">-><compClaiming-" + getNext() + ">;";
 					compClaiming();
-					System.out.println();
+					retStr+="\n";
 					dotFormat += "<ifExpr-" + curNodeNum + ">-><elseExpr-" + getNext() + ">;";
 					elseExpr();
 				}
@@ -1056,11 +1071,11 @@ public class ParserRun {
 		}
 		else if(tokens.get(currPos).getCode()==9) {
 			dotFormat += "<elseExpr-" + curNodeNum + ">-><" + tokens.get(currPos).getContent() + "-" + getNext() + ">;";
-			System.out.print(tokens.get(currPos).getContent()+" ");
+			retStr+=(tokens.get(currPos).getContent()+" ");
 			currPos++;
 			dotFormat += "<elseExpr-" + curNodeNum + ">-><compClaiming-" + getNext() + ">;";
 			compClaiming();
-			System.out.println();
+			retStr+="\n";
 		}
 	}
 	//38
@@ -1068,17 +1083,17 @@ public class ParserRun {
 		int curNodeNum = nodeNum - 1;
 		if(tokens.get(currPos).getCode()==10) {
 			dotFormat += "<whileExpr-" + curNodeNum + ">-><" + tokens.get(currPos).getContent() + "-" + getNext() + ">;";
-			System.out.print(tokens.get(currPos).getContent()+" ");
+			retStr+=(tokens.get(currPos).getContent()+" ");
 			currPos++;
 			if(tokens.get(currPos).getCode()==16) {
 				dotFormat += "<whileExpr-" + curNodeNum + ">-><" + tokens.get(currPos).getContent() + "-" + getNext() + ">;";
-				System.out.print(tokens.get(currPos).getContent()+" ");
+				retStr+=(tokens.get(currPos).getContent()+" ");
 				currPos++;
 				dotFormat += "<whileExpr-" + curNodeNum + ">-><logic1-" + getNext() + ">;";
 				logic1();
 				if(tokens.get(currPos).getCode()==17) {
 					dotFormat += "<whileExpr-" + curNodeNum + ">-><" + tokens.get(currPos).getContent() + "-" + getNext() + ">;";
-					System.out.print(tokens.get(currPos).getContent()+" ");
+					retStr+=(tokens.get(currPos).getContent()+" ");
 					currPos++;
 					dotFormat += "<whileExpr-" + curNodeNum + ">-><compClaiming-" + getNext() + ">;";
 					compClaiming();
@@ -1103,7 +1118,7 @@ public class ParserRun {
 		int curNodeNum = nodeNum - 1;
 		if(tokens.get(currPos).getCode()==15) {
 			dotFormat += "<retClaiming-" + curNodeNum + ">-><" + tokens.get(currPos).getContent() + "-" + getNext() + ">;";
-			System.out.print(tokens.get(currPos).getContent()+" ");
+			retStr+=(tokens.get(currPos).getContent()+" ");
 			currPos++;
 			dotFormat += "<retClaiming-" + curNodeNum + ">-><retSub-" + getNext() + ">;";
 			retSub();
@@ -1118,9 +1133,9 @@ public class ParserRun {
 		int curNodeNum = nodeNum - 1;
 		if(tokens.get(currPos).getCode()==22||isBoolean()) {
 			dotFormat += "<retSub-" + curNodeNum + ">-><" + tokens.get(currPos).getContent() + "-" + getNext() + ">;";
-			System.out.print(tokens.get(currPos).getContent()+" ");
+			retStr+=(tokens.get(currPos).getContent()+" ");
 			if(tokens.get(currPos).getCode()==22)
-				System.out.println();
+				retStr+="\n";
 			currPos++;
 		}
 		else if(tokens.get(currPos).getCode()==16||isIdentifier()||isNum()) {
@@ -1128,8 +1143,8 @@ public class ParserRun {
 			calExpr();
 			if(tokens.get(currPos).getCode()==22) {
 				dotFormat += "<retSub-" + curNodeNum + ">-><" + tokens.get(currPos).getContent() + "-" + getNext() + ">;";
-				System.out.print(tokens.get(currPos).getContent()+" ");
-				System.out.println();
+				retStr+=(tokens.get(currPos).getContent()+" ");
+				retStr+="\n";
 				currPos++;
 			}
 			else {
@@ -1147,24 +1162,24 @@ public class ParserRun {
 		int curNodeNum = nodeNum - 1;
 		if(tokens.get(currPos).getCode()==-7) {
 			dotFormat += "<printFunc-" + curNodeNum + ">-><" + tokens.get(currPos).getContent() + "-" + getNext() + ">;";
-			System.out.print(tokens.get(currPos).getContent()+" ");
+			retStr+=(tokens.get(currPos).getContent()+" ");
 			currPos++;
 			if(tokens.get(currPos).getCode()==16) {
 				dotFormat += "<printFunc-" + curNodeNum + ">-><" + tokens.get(currPos).getContent() + "-" + getNext() + ">;";
-				System.out.print(tokens.get(currPos).getContent()+" ");
+				retStr+=(tokens.get(currPos).getContent()+" ");
 				currPos++;
 				if(tokens.get(currPos).getCode()==-5||tokens.get(currPos).getCode()==-6||isIdentifier()||isNum()||isBoolean()) {
 					dotFormat += "<printFunc-" + curNodeNum + ">-><" + tokens.get(currPos).getContent() + "-" + getNext() + ">;";
-					System.out.print(tokens.get(currPos).getContent()+" ");
+					retStr+=(tokens.get(currPos).getContent()+" ");
 					currPos++;
 					if(tokens.get(currPos).getCode()==17) {
 						dotFormat += "<printFunc-" + curNodeNum + ">-><" + tokens.get(currPos).getContent() + "-" + getNext() + ">;";
-						System.out.print(tokens.get(currPos).getContent()+" ");
+						retStr+=(tokens.get(currPos).getContent()+" ");
 						currPos++;
 //						if(tokens.get(currPos).getCode()==22) {
 //							dotFormat += "<printFunc-" + curNodeNum + ">-><" + tokens.get(currPos).getContent() + "-" + getNext() + ">;";
-//							System.out.print(tokens.get(currPos).getContent()+" ");
-//							System.out.println();
+//							retStr+=(tokens.get(currPos).getContent()+" ");
+//							retStr+="\n";
 //							currPos++;
 //						}
 //						else {
@@ -1198,21 +1213,21 @@ public class ParserRun {
 	public void strExpr() {
 		int curNodeNum = nodeNum - 1;
 		dotFormat += "<strExpr-" + curNodeNum + ">-><" + tokens.get(currPos).getContent() + "-" + getNext() + ">;";
-		System.out.print(tokens.get(currPos).getContent()+" ");
+		retStr+=(tokens.get(currPos).getContent()+" ");
 		currPos++;
 	}
 	//43
 	public void charExpr() {
 		int curNodeNum = nodeNum - 1;
 		dotFormat += "<charExpr-" + curNodeNum + ">-><" + tokens.get(currPos).getContent() + "-" + getNext() + ">;";
-		System.out.print(tokens.get(currPos).getContent()+" ");
+		retStr+=(tokens.get(currPos).getContent()+" ");
 		currPos++;
 	}
 	//44
 	public void arrayAss()throws Exception{
 		int curNodeNum = nodeNum - 1;
 		dotFormat += "<arrayAss-" + curNodeNum + ">-><" + tokens.get(currPos).getContent() + "-" + getNext() + ">;";
-		System.out.print(tokens.get(currPos).getContent()+" ");
+		retStr+=(tokens.get(currPos).getContent()+" ");
 		currPos++;
 		dotFormat += "<arrayAss-" + curNodeNum + ">-><simpleExpr-" + getNext() + ">;";
 		simpleExpr();
@@ -1220,7 +1235,7 @@ public class ParserRun {
 		subSimpleExpr();
 		if(tokens.get(currPos).getCode()==19) {
 			dotFormat += "<arrayAss-" + curNodeNum + ">-><" + tokens.get(currPos).getContent() + "-" + getNext() + ">;";
-			System.out.print(tokens.get(currPos).getContent()+" ");
+			retStr+=(tokens.get(currPos).getContent()+" ");
 			currPos++;
 		}
 		else {
@@ -1232,7 +1247,7 @@ public class ParserRun {
 		int curNodeNum = nodeNum - 1;
 		if(tokens.get(currPos).getCode()==23) {
 			dotFormat += "<subSimpleExpr-" + curNodeNum + ">-><" + tokens.get(currPos).getContent() + "-" + getNext() + ">;";
-			System.out.print(tokens.get(currPos).getContent()+" ");
+			retStr+=(tokens.get(currPos).getContent()+" ");
 			currPos++;
 			dotFormat += "<subSimpleExpr-" + curNodeNum + ">-><simpleExpr-" + getNext() + ">;";
 			simpleExpr();

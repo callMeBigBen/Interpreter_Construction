@@ -1,5 +1,3 @@
-package test;
-
 import java.util.regex.*;
 import java.util.*;
 import java.io.*;
@@ -205,26 +203,26 @@ public class Calculator {
         
         if (op == '*'){
         	Node newNode = new Node();
-        	newNode.setExpr(node2.expr+"_"+node1.expr+"_"+op);
+        	newNode.setExpr(node2.expr+" "+node1.expr+" "+op);
         	newNode.setValue(op1*op2);
         	operandStack.push(newNode);
         }
             
         else if (op == '-'){
         	Node newNode = new Node();
-        	newNode.setExpr(node2.expr+"_"+node1.expr+"_"+op);
+        	newNode.setExpr(node2.expr+" "+node1.expr+" "+op);
         	newNode.setValue(op2-op1);
         	operandStack.push(newNode);
         }   //注意方向op2-op1
         else if (op == '/'){
         	Node newNode = new Node();
-        	newNode.setExpr(node2.expr+"_"+node1.expr+"_"+op);
+        	newNode.setExpr(node2.expr+" "+node1.expr+" "+op);
         	newNode.setValue(op2/op1);
         	operandStack.push(newNode);
         }
         else if (op == '+'){
         	Node newNode = new Node();
-        	newNode.setExpr(node2.expr+"_"+node1.expr+"_"+op);
+        	newNode.setExpr(node2.expr+" "+node1.expr+" "+op);
         	newNode.setValue(op1+op2);
         	operandStack.push(newNode);
         }
@@ -241,13 +239,13 @@ public class Calculator {
 			||s.equals("-")
 			||s.equals("*")
 			||s.equals("/")){
-				LinkBTree node = new LinkBTree(s+"_"+tag);
+				LinkBTree node = new LinkBTree(s+"-"+tag);
 				node.addRightTree(treeNodes.pop());	
 				node.addLeftTree(treeNodes.pop());
 				treeNodes.push(node);
 			}
 			else{
-				LinkBTree node = new LinkBTree(s+"_"+tag);
+				LinkBTree node = new LinkBTree(s+"-"+tag);
 				treeNodes.push(node);
 			}
 
@@ -291,14 +289,14 @@ public class Calculator {
 			if(currNode.hasLeftTree()){
 				queue.addLast(currNode.getLeftChild());
 				nextLevelCount++;
-				treeStr+=(currNode.getRootData()+"->"+currNode.getLeftChild().getRootData()+";");
+				treeStr+="<"+currNode.getRootData()+">"+"->"+"<"+currNode.getLeftChild().getRootData()+">"+";";
 			}
 			
 			//右子树入列
 			if(currNode.hasRightTree()){
 				queue.addLast(currNode.getRightChild());
 				nextLevelCount++;
-				treeStr+=(currNode.getRootData()+"->"+currNode.getRightChild().getRootData()+";");	
+				treeStr+="<"+currNode.getRootData()+">"+"->"+"<"+currNode.getRightChild().getRootData()+">"+";";	
 			}
 			
 			//当前层处理节点+1
