@@ -231,7 +231,7 @@ public class Calculator {
 
 	//根据逆波兰式生成二叉树,返回根节点
 	public LinkBTree createBTree(String nbl){
-		String[] tmpNodes = nbl.split("_");
+		String[] tmpNodes = nbl.split(" ");
 		int tag=0;
 		for(String s:tmpNodes){
 			tag++;
@@ -292,7 +292,7 @@ public class Calculator {
 				treeStr+="<"+currNode.getRootData()+">"+"->"+"<"+currNode.getLeftChild().getRootData()+">"+";";
 			}
 			
-			//右子树入列
+			//右子树入列e
 			if(currNode.hasRightTree()){
 				queue.addLast(currNode.getRightChild());
 				nextLevelCount++;
