@@ -65,7 +65,7 @@ public class Mini {
 	
 	private void initialize() {
 		frmCalculator = new JFrame();
-		frmCalculator.setTitle("Calculator");
+		frmCalculator.setTitle("MiniCompiler");
 		frmCalculator.setBounds(100, 100, 1107, 786);
 		frmCalculator.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frmCalculator.getContentPane().setLayout(null);

@@ -102,6 +102,7 @@ public class CalculatorTest {
 						//output.setText(e.getMessage());
 					}
 					createDotGraph(test.treeStr, "DotGraph");
+					test.treeStr ="";
 					
 			}
 		});
